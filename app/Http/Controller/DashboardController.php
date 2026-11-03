@@ -35,7 +35,10 @@ final class DashboardController
      */
     public function index(Request $request, array $params): Response
     {
-        $this->auth->requireAuthentication();
+        if (!$this->auth->check()) {
+            return Response::redirect('/login');
+        }
+
         $this->cleanup->maybeRun();
 
         $jobs = $this->jobs->all();
