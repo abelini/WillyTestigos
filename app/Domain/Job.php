@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Willy\Domain;
 
+use IntlDateFormatter;
 use ValueError;
 use Willy\Exception\StorageException;
 use Willy\Support\Clock;
 use Willy\Support\Data;
 
+use function class_exists;
 use function floor;
+use function intdiv;
+use function is_string;
+use function mb_substr;
 use function number_format;
+use function str_replace;
 
 final class Job
 {
@@ -510,7 +516,12 @@ final class Job
             'expires_at_iso' => $this->hasExpiry()
                 ? $clock->iso($clock->fromTimestamp($this->expiresAt))
                 : '',
+            'expires_at_label' => $this->hasExpiry()
+                ? $this->timeLabel($clock, $this->expiresAt)
+                : '',
             'expires_in' => $expiresIn,
+            'expires_in_label' => $this->expiryLabel($expiresIn),
+            'created_at_label' => $this->timeLabel($clock, $this->createdAt),
             'has_error' => $this->hasError(),
             'error' => $this->error,
             'telegram' => [
@@ -562,5 +573,48 @@ final class Job
         }
 
         return number_format($bytes / 1048576, 1) . ' MB';
+    }
+
+    /**
+     * Fecha y hora legible en español, en la zona horaria de la aplicación.
+     */
+    private function timeLabel(Clock $clock, int $timestamp): string
+    {
+        $date = $clock->fromTimestamp($timestamp);
+
+        if (class_exists(IntlDateFormatter::class)) {
+            $formatter = new IntlDateFormatter(
+                'es',
+                IntlDateFormatter::NONE,
+                IntlDateFormatter::NONE,
+                $clock->zone(),
+                IntlDateFormatter::GREGORIAN,
+                "d MMM yyyy · HH:mm",
+            );
+
+            $label = $formatter->format($date->getTimestamp());
+
+            if (is_string($label) && $label !== '') {
+                return $label;
+            }
+        }
+
+        return str_replace('T', ' ', mb_substr($clock->iso($date), 0, 16));
+    }
+
+    private function expiryLabel(int $seconds): string
+    {
+        if ($seconds < 60) {
+            return 'quedan ' . $seconds . ' s';
+        }
+
+        if ($seconds < 3600) {
+            return 'quedan ' . intdiv($seconds, 60) . ' min';
+        }
+
+        $hours = intdiv($seconds, 3600);
+        $minutes = intdiv($seconds % 3600, 60);
+
+        return 'quedan ' . $hours . ' h' . ($minutes > 0 ? ' ' . $minutes . ' min' : '');
     }
 }

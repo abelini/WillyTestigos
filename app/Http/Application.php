@@ -12,9 +12,7 @@ use Willy\Http\Controller\AuthController;
 use Willy\Http\Controller\DashboardController;
 use Willy\Http\Controller\JobController;
 use Willy\Service\Auth;
-use Willy\Service\UploadService;
 use Willy\Support\Csrf;
-use Willy\Support\Process;
 use Willy\Support\Session;
 use Willy\Support\View;
 
@@ -43,6 +41,13 @@ final class Application
 
         try {
             $session = Session::start($container->config, $container->paths, $container->clock);
+
+            if ($container->config->trustProxy) {
+                // Detrás de Cloudflare proxied el REMOTE_ADDR es de Cloudflare;
+                // la IP real del cliente llega en CF-Connecting-IP.
+                $request = $request->withClientIp();
+            }
+
             $auth = new Auth(
                 $session,
                 $container->hasher,
@@ -81,20 +86,14 @@ final class Application
             $auth,
             $csrf,
             $container->jobs,
-            new UploadService(
-                $container->config,
-                $container->jobs,
-                $container->jobFiles,
-                $container->images,
-                $container->files,
-                $container->clock,
-            ),
+            $container->uploads,
             $container->dispatcher,
             $container->processor,
             $container->delivery,
             $container->files,
             $container->clock,
-            new Process(),
+            $container->process,
+            $container->logger,
         );
 
         $router->get('/login', [$authController, 'showLogin']);

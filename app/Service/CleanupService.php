@@ -31,7 +31,7 @@ final class CleanupService
 
     public function maybeRun(): int
     {
-        $now = $this->clock->timestamp($this->clock->now());
+        $now = $this->clock->nowTimestamp();
         $stamp = $this->paths->cleanupStamp();
 
         if ($this->files->isFile($stamp) && ($this->files->lastModified($stamp) + self::STAMP_INTERVAL) > $now) {
@@ -45,7 +45,7 @@ final class CleanupService
 
     public function run(): int
     {
-        $now = $this->clock->timestamp($this->clock->now());
+        $now = $this->clock->nowTimestamp();
         $removed = 0;
 
         foreach ($this->jobs->all() as $job) {

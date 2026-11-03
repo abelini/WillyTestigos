@@ -59,7 +59,7 @@ final class JobProcessor
             return $job;
         }
 
-        $now = $this->clock->timestamp($this->clock->now());
+        $now = $this->clock->nowTimestamp();
         $this->jobs->update(
             $jobId,
             static fn (Job $current): Job => $current
@@ -114,7 +114,7 @@ final class JobProcessor
         ]);
 
         try {
-            $now = $this->clock->timestamp($this->clock->now());
+            $now = $this->clock->nowTimestamp();
             $this->jobs->update(
                 $jobId,
                 fn (Job $current): Job => $current

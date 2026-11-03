@@ -13,10 +13,24 @@ use Willy\Support\SystemClock;
 
 use function dirname;
 use function implode;
+use function password_hash;
+use function session_destroy;
+use function session_status;
+
+use const PASSWORD_BCRYPT;
+use const PHP_SESSION_ACTIVE;
 
 final class TestEnvironment
 {
     private static string $root = '';
+
+    /**
+     * Contraseña en texto plano configurada en el entorno de pruebas.
+     */
+    public static function password(): string
+    {
+        return 'clave-testigo-2026';
+    }
 
     public static function root(): string
     {
@@ -29,7 +43,7 @@ final class TestEnvironment
                     'APP_ENV=testing',
                     'APP_URL=http://localhost',
                     'APP_TIMEZONE=America/Mazatlan',
-                    'APP_PASSWORD_HASH=$2y$12$abcdefghijklmnopqrstuv',
+                    'APP_PASSWORD_HASH=' . password_hash(self::password(), PASSWORD_BCRYPT),
                     'COVER_SUBTITLE="Portal: Proyecto Z"',
                     'STORAGE_PATH=storage',
                     'WORKER_MODE=inline',
@@ -44,6 +58,18 @@ final class TestEnvironment
         }
 
         return self::$root;
+    }
+
+    /**
+     * Cierra cualquier sesión activa y limpia el superglobal.
+     */
+    public static function resetSession(): void
+    {
+        $_SESSION = [];
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
     }
 
     public static function config(): Config

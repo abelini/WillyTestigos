@@ -44,7 +44,7 @@ final class DeliveryService
             throw new ProcessingException('El PDF generado ya no está disponible.');
         }
 
-        $now = $this->clock->timestamp($this->clock->now());
+        $now = $this->clock->nowTimestamp();
         $this->jobs->update(
             $jobId,
             static fn (Job $current): Job => $current->withStatus(JobStatus::Delivering, $now),

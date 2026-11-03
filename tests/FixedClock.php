@@ -22,6 +22,11 @@ final class FixedClock implements Clock
         return $this->now;
     }
 
+    public function nowTimestamp(): int
+    {
+        return $this->now->getTimestamp();
+    }
+
     public function fromTimestamp(int $timestamp): DateTimeImmutable
     {
         return (new DateTimeImmutable('@' . $timestamp))->setTimezone($this->zone);

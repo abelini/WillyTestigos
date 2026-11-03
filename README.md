@@ -67,6 +67,7 @@ En Windows, asegúrate de que el usuario de OpenLiteSpeed/XAMPP pueda escribir e
 | `JPEG_QUALITY` | Calidad de las imágenes procesadas (40–95). | `82` |
 | `WORKER_MODE` | `auto`, `background` o `inline`. | `auto` |
 | `PHP_CLI_BINARY` | Binario PHP para el worker. Vacío usa `PHP_BINARY`. | vacío |
+| `TRUST_PROXY` | `true` si la app está detrás de Cloudflare proxied; usa `CF-Connecting-IP` como IP del cliente. | `false` |
 | `TELEGRAM_BOT_TOKEN` | Token del bot de Telegram. | vacío |
 | `TELEGRAM_CHAT_ID` | Chat o canal de destino. | vacío |
 | `MAIL_HOST` | Servidor SMTP. | vacío |
@@ -137,6 +138,7 @@ docs/           Guía de despliegue
 - El docroot es `public/`; `.env` y `storage/` quedan fuera del alcance del servidor web.
 - Las capturas se validan por MIME real con `finfo` y por dimensiones antes de guardarse.
 - Los archivos se escriben de forma atómica y los trabajos usan bloqueos para evitar ejecuciones simultáneas.
+- Detrás de Cloudflare proxied, `TRUST_PROXY=true` hace que el límite de intentos y las IP se resuelvan con `CF-Connecting-IP` (validada como IP real); la cabecera la firma el propio Cloudflare, no el cliente.
 
 ## Despliegue
 

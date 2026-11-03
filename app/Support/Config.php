@@ -47,6 +47,7 @@ final class Config
         public readonly string $mailTo,
         public readonly bool $sessionSecure,
         public readonly string $sessionName,
+        public readonly bool $trustProxy,
     ) {
     }
 
@@ -131,6 +132,7 @@ final class Config
             mailTo: Env::string('MAIL_TO', ''),
             sessionSecure: $scheme === 'https',
             sessionName: 'willy_session',
+            trustProxy: Env::bool('TRUST_PROXY', false),
         );
     }
 

@@ -148,7 +148,7 @@ final class Session
 
             $params = session_get_cookie_params();
             setcookie($name, '', [
-                'expires' => $this->clock->timestamp($this->clock->now()) - 42000,
+                'expires' => $this->clock->nowTimestamp() - 42000,
                 'path' => $params['path'],
                 'domain' => $params['domain'],
                 'secure' => $params['secure'],

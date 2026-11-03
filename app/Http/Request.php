@@ -8,6 +8,7 @@ use Willy\Exception\ValidationException;
 
 use function array_key_exists;
 use function explode;
+use function filter_var;
 use function is_int;
 use function is_string;
 use function preg_match;
@@ -49,6 +50,35 @@ final class Request
             files: $_FILES,
             ip: self::serverString('REMOTE_ADDR', '0.0.0.0'),
         );
+    }
+
+    /**
+     * Devuelve una copia con la IP del cliente real según Cloudflare.
+     * Solo debe invocarse cuando la aplicación corre detrás de un proxy
+     * de confianza (TRUST_PROXY=true); de lo contrario el atacante
+     * podría falsificar la cabecera.
+     */
+    public function withClientIp(): self
+    {
+        return new self(
+            method: $this->method,
+            path: $this->path,
+            query: $this->query,
+            post: $this->post,
+            files: $this->files,
+            ip: self::proxyClientIp($this->ip),
+        );
+    }
+
+    private static function proxyClientIp(string $fallback): string
+    {
+        $header = trim(self::serverString('HTTP_CF_CONNECTING_IP', ''));
+
+        if ($header !== '' && filter_var($header, FILTER_VALIDATE_IP) !== false) {
+            return $header;
+        }
+
+        return $fallback;
     }
 
     public function postString(string $key): string

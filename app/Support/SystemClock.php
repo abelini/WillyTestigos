@@ -30,6 +30,11 @@ final class SystemClock implements Clock
         return new DateTimeImmutable('now', $this->zone);
     }
 
+    public function nowTimestamp(): int
+    {
+        return $this->now()->getTimestamp();
+    }
+
     public function fromTimestamp(int $timestamp): DateTimeImmutable
     {
         return (new DateTimeImmutable('@' . $timestamp))->setTimezone($this->zone);

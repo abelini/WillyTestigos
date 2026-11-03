@@ -33,7 +33,7 @@ final class JobStore
 
     public function create(Month $month, string $coverSubtitle): Job
     {
-        $now = $this->clock->timestamp($this->clock->now());
+        $now = $this->clock->nowTimestamp();
         $job = new Job(
             id: $this->newId(),
             month: $month,

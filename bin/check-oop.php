@@ -63,6 +63,7 @@ $exact = [
     'exec' => ['app/Support/Process.php'],
     'escapeshellarg' => ['app/Support/Process.php'],
     'setcookie' => ['app/Support/Session.php'],
+    'is_uploaded_file' => ['app/Support/SystemUploadGuard.php'],
 ];
 
 $prefixes = [

@@ -18,6 +18,7 @@ use Willy\Service\UploadService;
 use Willy\Support\Clock;
 use Willy\Support\Csrf;
 use Willy\Support\FileSystem;
+use Willy\Support\Logger;
 use Willy\Support\Process;
 
 use function array_key_exists;
@@ -35,6 +36,7 @@ final class JobController
         private readonly FileSystem $files,
         private readonly Clock $clock,
         private readonly Process $process,
+        private readonly Logger $logger,
     ) {
     }
 
@@ -88,7 +90,11 @@ final class JobController
             try {
                 $this->processor->process($jobId);
             } catch (Throwable $exception) {
-                return;
+                $this->logger->error('Falló el procesamiento en línea del trabajo.', [
+                    'job' => $jobId,
+                    'tipo' => $exception::class,
+                    'message' => $exception->getMessage(),
+                ]);
             }
         });
     }
@@ -114,7 +120,7 @@ final class JobController
     {
         $this->auth->requireAuthentication();
         $job = $this->jobs->find($this->jobId($params));
-        $now = $this->clock->timestamp($this->clock->now());
+        $now = $this->clock->nowTimestamp();
 
         if (!$job->hasPdf()) {
             throw new NotFoundException('El PDF todavía no está disponible.');
@@ -142,7 +148,7 @@ final class JobController
         $this->csrf->verify($request->csrfToken());
 
         $job = $this->jobs->find($this->jobId($params));
-        $now = $this->clock->timestamp($this->clock->now());
+        $now = $this->clock->nowTimestamp();
 
         if (!$job->hasPdf()) {
             throw new NotFoundException('El PDF todavía no está disponible.');

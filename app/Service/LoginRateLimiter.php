@@ -261,6 +261,6 @@ final class LoginRateLimiter
 
     private function now(): int
     {
-        return $this->clock->timestamp($this->clock->now());
+        return $this->clock->nowTimestamp();
     }
 }

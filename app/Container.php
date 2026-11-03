@@ -17,6 +17,7 @@ use Willy\Service\LoginRateLimiter;
 use Willy\Service\MailSender;
 use Willy\Service\PdfBuilder;
 use Willy\Service\TelegramSender;
+use Willy\Service\UploadService;
 use Willy\Support\Clock;
 use Willy\Support\Config;
 use Willy\Support\FileSystem;
@@ -27,6 +28,7 @@ use Willy\Support\PasswordHasher;
 use Willy\Support\Paths;
 use Willy\Support\Process;
 use Willy\Support\SystemClock;
+use Willy\Support\SystemUploadGuard;
 
 final class Container
 {
@@ -49,6 +51,8 @@ final class Container
         public readonly JobDispatcher $dispatcher,
         public readonly CleanupService $cleanup,
         public readonly LoginRateLimiter $limiter,
+        public readonly UploadService $uploads,
+        public readonly Process $process,
     ) {
     }
 
@@ -70,6 +74,7 @@ final class Container
         $mail = new MailSender();
         $telegram = new TelegramSender(new HttpClient(), $json);
         $delivery = new DeliveryService($config, $jobs, $files, $telegram, $mail, $clock, $logger);
+        $process = new Process();
         $processor = new JobProcessor(
             $jobs,
             $jobFiles,
@@ -97,9 +102,19 @@ final class Container
             mail: $mail,
             delivery: $delivery,
             processor: $processor,
-            dispatcher: new JobDispatcher($config, $paths, new Process(), $logger),
+            dispatcher: new JobDispatcher($config, $paths, $process, $logger),
             cleanup: new CleanupService($paths, $files, $jobs, $clock, $config, $logger),
             limiter: new LoginRateLimiter($paths, $json, $clock),
+            uploads: new UploadService(
+                $config,
+                $jobs,
+                $jobFiles,
+                $images,
+                $files,
+                $clock,
+                new SystemUploadGuard(),
+            ),
+            process: $process,
         );
     }
 }

@@ -11,6 +11,9 @@ interface Clock
 {
     public function now(): DateTimeImmutable;
 
+    /** Marca de tiempo Unix del instante actual. */
+    public function nowTimestamp(): int;
+
     public function fromTimestamp(int $timestamp): DateTimeImmutable;
 
     public function timestamp(DateTimeImmutable $date): int;

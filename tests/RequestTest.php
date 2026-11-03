@@ -22,7 +22,13 @@ final class RequestTest extends TestCase
 
     protected function tearDown(): void
     {
-        unset($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_X_CSRF_TOKEN']);
+        unset(
+            $_SERVER['REQUEST_METHOD'],
+            $_SERVER['REQUEST_URI'],
+            $_SERVER['REMOTE_ADDR'],
+            $_SERVER['HTTP_X_CSRF_TOKEN'],
+            $_SERVER['HTTP_CF_CONNECTING_IP'],
+        );
         $_GET = [];
         $_POST = [];
         $_FILES = [];
@@ -135,5 +141,34 @@ final class RequestTest extends TestCase
         $this->expectException(ValidationException::class);
 
         Request::capture()->file('photo');
+    }
+
+    public function testItIgnoresTheCloudflareHeaderByDefault(): void
+    {
+        $_SERVER['HTTP_CF_CONNECTING_IP'] = '198.51.100.7';
+
+        self::assertSame('203.0.113.10', Request::capture()->ip);
+    }
+
+    public function testItResolvesTheCloudflareAddressWhenTrusted(): void
+    {
+        $_SERVER['HTTP_CF_CONNECTING_IP'] = '198.51.100.7';
+
+        self::assertSame('198.51.100.7', Request::capture()->withClientIp()->ip);
+
+        $_SERVER['HTTP_CF_CONNECTING_IP'] = '2001:db8::1';
+
+        self::assertSame('2001:db8::1', Request::capture()->withClientIp()->ip);
+    }
+
+    public function testItFallsBackToTheDirectAddressWhenTheProxyHeaderIsInvalid(): void
+    {
+        $_SERVER['HTTP_CF_CONNECTING_IP'] = 'this-is-not-an-ip';
+
+        self::assertSame('203.0.113.10', Request::capture()->withClientIp()->ip);
+
+        $_SERVER['REMOTE_ADDR'] = '198.51.100.99';
+
+        self::assertSame('198.51.100.99', Request::capture()->withClientIp()->ip);
     }
 }

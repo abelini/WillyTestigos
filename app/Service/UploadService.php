@@ -15,10 +15,10 @@ use Willy\Repository\JobStore;
 use Willy\Support\Clock;
 use Willy\Support\Config;
 use Willy\Support\FileSystem;
+use Willy\Support\UploadGuard;
 
 use function count;
 use function in_array;
-use function is_uploaded_file;
 use function max;
 
 final class UploadService
@@ -30,6 +30,7 @@ final class UploadService
         private readonly ImageProcessor $images,
         private readonly FileSystem $system,
         private readonly Clock $clock,
+        private readonly UploadGuard $guard,
     ) {
     }
 
@@ -49,7 +50,7 @@ final class UploadService
             throw new ValidationException('La posición de la captura no es válida.');
         }
 
-        if (!is_uploaded_file($file->temporaryName)) {
+        if (!$this->guard->isUploaded($file->temporaryName)) {
             throw new ValidationException('La captura no proviene de una subida válida.');
         }
 
@@ -120,6 +121,6 @@ final class UploadService
 
     private function now(): int
     {
-        return $this->clock->timestamp($this->clock->now());
+        return $this->clock->nowTimestamp();
     }
 }
