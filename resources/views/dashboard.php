@@ -15,9 +15,9 @@ $detected = $data['detected'];
 $jobs = $data['jobs'];
 ?><main class="shell">
     <header class="topbar">
-        <div>
-            <p class="eyebrow">Portal: Proyecto Z</p>
-            <h1>Testigos</h1>
+        <div class="brand">
+            <img class="brand-logo" src="/assets/logo-proyecto-z.png" alt="Proyecto Z" width="800" height="240">
+            <h1 class="brand-title">Testigos</h1>
         </div>
         <form method="post" action="/logout">
             <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">

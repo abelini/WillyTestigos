@@ -12,7 +12,7 @@ use Willy\Support\View;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= View::escape((string) $data['title']) ?> · Testigos</title>
-    <link rel="stylesheet" href="/assets/app.css">
+    <link rel="stylesheet" href="/assets/app.css?v=2">
 </head>
 <body data-config="<?= View::escape((string) $data['config']) ?>">
 <?= $data['content'] ?>
