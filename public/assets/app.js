@@ -18,14 +18,115 @@
     const progressText = document.getElementById('progress-text');
     const message = document.getElementById('message');
     const dropZone = document.getElementById('drop-zone');
+    const dropTitle = document.getElementById('drop-title');
+    const dropHint = document.getElementById('drop-hint');
+    const selection = document.getElementById('selection');
 
-    const showMessage = (text) => {
+    const maxFiles = Number.isInteger(config.maxFiles) ? config.maxFiles : 200;
+    const maxFileMb = Number.isInteger(config.maxFileMb) ? config.maxFileMb : 25;
+    const defaultHint = dropHint ? dropHint.textContent : '';
+    const allowedTypes = ['image/jpeg', 'image/png'];
+
+    let selectedFiles = [];
+
+    const showMessage = (text, kind = 'error') => {
         if (!message) {
             return;
         }
 
+        message.classList.toggle('success', kind === 'success');
         message.textContent = text;
         message.hidden = text === '';
+    };
+
+    const formatSize = (bytes) => {
+        if (bytes < 1024 * 1024) {
+            return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+        }
+
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    };
+
+    const findInvalid = (files) => {
+        const limit = maxFileMb * 1024 * 1024;
+
+        return files.find((file) => {
+            if (file.size > limit) {
+                return true;
+            }
+
+            if (allowedTypes.includes(file.type)) {
+                return false;
+            }
+
+            if (file.type === '') {
+                return !/\.(jpe?g|png)$/i.test(file.name);
+            }
+
+            return true;
+        });
+    };
+
+    const renderSelection = () => {
+        const hasFiles = selectedFiles.length > 0;
+        const invalid = hasFiles ? findInvalid(selectedFiles) : null;
+        const overLimit = selectedFiles.length > maxFiles;
+
+        if (dropZone) {
+            dropZone.classList.toggle('ready', hasFiles && !invalid && !overLimit);
+            dropZone.classList.toggle('needs-files', hasFiles && (Boolean(invalid) || overLimit));
+        }
+
+        if (dropTitle) {
+            dropTitle.textContent = hasFiles
+                ? `${selectedFiles.length} captura${selectedFiles.length === 1 ? '' : 's'} seleccionada${selectedFiles.length === 1 ? '' : 's'}`
+                : 'Selecciona o arrastra las capturas';
+        }
+
+        if (dropHint) {
+            dropHint.textContent = hasFiles
+                ? 'Pulsa "Generar PDF" para subirlas.'
+                : defaultHint;
+        }
+
+        if (generate) {
+            generate.textContent = hasFiles ? `Generar PDF (${selectedFiles.length})` : 'Generar PDF';
+        }
+
+        if (!selection) {
+            return;
+        }
+
+        if (!hasFiles) {
+            selection.textContent = '';
+            selection.hidden = true;
+            return;
+        }
+
+        const total = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+        const names = selectedFiles.slice(0, 3).map((file) => file.name);
+        const extra = selectedFiles.length - names.length;
+        const list = extra > 0 ? `${names.join(', ')} y ${extra} más` : names.join(', ');
+
+        selection.textContent = `${list} · ${formatSize(total)}`;
+        selection.hidden = false;
+    };
+
+    const syncSelection = (files) => {
+        selectedFiles = Array.from(files || []);
+        const invalid = findInvalid(selectedFiles);
+
+        if (selectedFiles.length === 0) {
+            showMessage('');
+        } else if (invalid) {
+            showMessage(`"${invalid.name}" no es JPEG/PNG o supera los ${maxFileMb} MB.`);
+        } else if (selectedFiles.length > maxFiles) {
+            showMessage(`Puedes subir hasta ${maxFiles} capturas.`);
+        } else {
+            showMessage('');
+        }
+
+        renderSelection();
     };
 
     const setProgress = (value, text) => {
@@ -114,29 +215,38 @@
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const files = Array.from(photos.files || []);
+            const files = selectedFiles.length > 0 ? selectedFiles : Array.from(photos.files || []);
 
             if (files.length === 0) {
-                showMessage('Selecciona al menos una captura.');
+                showMessage('Selecciona al menos una captura antes de generar el PDF.');
+                if (dropZone) {
+                    dropZone.classList.add('needs-files');
+                    dropZone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
                 return;
             }
 
-            if (files.length > config.maxFiles) {
-                showMessage(`Puedes subir hasta ${config.maxFiles} capturas.`);
+            if (files.length > maxFiles) {
+                showMessage(`Puedes subir hasta ${maxFiles} capturas.`);
                 return;
             }
 
-            const limit = config.maxFileMb * 1024 * 1024;
-            const invalid = files.find((file) => file.size > limit || !['image/jpeg', 'image/png'].includes(file.type));
+            const invalid = findInvalid(files);
 
             if (invalid) {
-                showMessage(`La captura ${invalid.name} no es válida o supera el tamaño permitido.`);
+                showMessage(`"${invalid.name}" no es JPEG/PNG o supera los ${maxFileMb} MB.`);
                 return;
             }
 
+            selectedFiles = files;
             disableForm(true);
             showMessage('');
             setProgress(0, 'Creando el trabajo...');
+            generate.textContent = 'Preparando...';
+
+            if (progress) {
+                progress.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
 
             try {
                 const createData = new FormData();
@@ -144,7 +254,11 @@
                 createData.append('month', month.value);
 
                 const created = await request('/api/jobs', createData);
-                const jobId = created.job.id;
+                const jobId = created && created.job && created.job.id ? created.job.id : '';
+
+                if (jobId === '') {
+                    throw new Error('No se pudo crear el trabajo.');
+                }
 
                 for (let index = 0; index < files.length; index++) {
                     await uploadOne(jobId, files[index], index + 1, (fraction) => {
@@ -164,10 +278,24 @@
                 startData.append('_csrf', config.csrf || '');
                 await request(`/api/jobs/${jobId}/start`, startData);
 
+                try {
+                    window.sessionStorage.setItem(
+                        'willy.flash',
+                        'Trabajo creado. Revisa el estado del PDF abajo.',
+                    );
+                } catch (error) {
+                    // Si el navegador bloquea sessionStorage, seguimos con la recarga.
+                }
+
                 window.location.reload();
             } catch (error) {
                 showMessage(error.message || 'No se pudo generar el PDF.');
                 disableForm(false);
+                renderSelection();
+
+                if (message) {
+                    message.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
             }
         });
     }
@@ -188,10 +316,33 @@
         });
 
         dropZone.addEventListener('drop', (event) => {
-            if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-                photos.files = event.dataTransfer.files;
+            if (!event.dataTransfer || event.dataTransfer.files.length === 0) {
+                return;
             }
+
+            try {
+                photos.files = event.dataTransfer.files;
+            } catch (error) {
+                // Algunos navegadores no permiten asignar files; usamos la lista propia.
+            }
+
+            syncSelection(event.dataTransfer.files);
         });
+    }
+
+    if (photos) {
+        photos.addEventListener('change', () => syncSelection(photos.files));
+    }
+
+    try {
+        const flash = window.sessionStorage.getItem('willy.flash');
+
+        if (flash && form) {
+            window.sessionStorage.removeItem('willy.flash');
+            showMessage(flash, 'success');
+        }
+    } catch (error) {
+        // sessionStorage puede estar bloqueado; no es crítico.
     }
 
     let polling = false;

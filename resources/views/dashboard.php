@@ -17,7 +17,6 @@ $jobs = $data['jobs'];
     <header class="topbar">
         <div class="brand">
             <img class="brand-logo" src="/assets/logo-proyecto-z.png" alt="Proyecto Z" width="800" height="240">
-            <h1 class="brand-title">Testigos</h1>
         </div>
         <form method="post" action="/logout">
             <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
@@ -26,7 +25,7 @@ $jobs = $data['jobs'];
     </header>
 
     <section class="card">
-        <h2>Nuevo PDF</h2>
+        <h2>Nuevo PDF de Testigos</h2>
         <form id="upload-form" novalidate>
             <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
 
@@ -43,9 +42,10 @@ $jobs = $data['jobs'];
 
             <label class="drop" id="drop-zone">
                 <input id="photos" type="file" accept="image/jpeg,image/png" multiple>
-                <strong>Selecciona o arrastra las capturas</strong>
-                <span>JPEG o PNG · hasta <?= (int) $data['max_files'] ?> archivos · máximo <?= (int) $data['max_file_mb'] ?> MB por archivo</span>
+                <strong id="drop-title">Selecciona o arrastra las capturas</strong>
+                <span id="drop-hint">JPEG o PNG · hasta <?= (int) $data['max_files'] ?> archivos · máximo <?= (int) $data['max_file_mb'] ?> MB por archivo</span>
             </label>
+            <p id="selection" class="selection" aria-live="polite" hidden></p>
 
             <button id="generate" type="submit">Generar PDF</button>
         </form>
@@ -65,8 +65,7 @@ $jobs = $data['jobs'];
                     <article
                         class="job"
                         data-job="<?= View::escape((string) $job['id']) ?>"
-                        data-status="<?= View::escape((string) $job['status']) ?>"
-                    >
+                        data-status="<?= View::escape((string) $job['status']) ?>">
                         <header>
                             <h3><?= View::escape((string) $job['title']) ?></h3>
                             <span class="badge"><?= View::escape((string) $job['status_label']) ?></span>
