@@ -110,6 +110,23 @@ final class Job
         return $this->month->title();
     }
 
+    /**
+     * Periodo de la portada: mes y año del trabajo, p. ej. "NOVIEMBRE 2026".
+     * Si el mes es diciembre y el trabajo se creó en enero, el año es el
+     * anterior.
+     */
+    public function coverPeriod(Clock $clock): string
+    {
+        $created = $clock->fromTimestamp($this->createdAt);
+        $year = (int) $created->format('Y');
+
+        if ($this->month === Month::Diciembre && (int) $created->format('n') === 1) {
+            $year--;
+        }
+
+        return $this->month->value . ' ' . $year;
+    }
+
     public function fileName(): string
     {
         return $this->month->fileName();

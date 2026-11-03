@@ -68,41 +68,67 @@ $jobs = $data['jobs'];
                         data-status="<?= View::escape((string) $job['status']) ?>">
                         <header>
                             <h3><?= View::escape((string) $job['title']) ?></h3>
-                            <span class="badge"><?= View::escape((string) $job['status_label']) ?></span>
+                            <span class="badge badge--<?= View::escape((string) $job['status']) ?>">
+                                <?= View::escape((string) $job['status_label']) ?>
+                            </span>
                         </header>
 
-                        <progress max="100" value="<?= (int) $job['progress'] ?>"></progress>
-                        <p class="muted">
-                            <?= (int) $job['uploaded_files'] ?> de <?= (int) $job['total_files'] ?> capturas
-                            · <?= (int) $job['progress'] ?>%
-                        </p>
+                        <?php if ((bool) $job['is_active']): ?>
+                            <progress max="100" value="<?= (int) $job['progress'] ?>"></progress>
+                            <p class="muted job-info">
+                                <?= (int) $job['uploaded_files'] ?> de <?= (int) $job['total_files'] ?> capturas
+                                · <?= (int) $job['progress'] ?>%
+                            </p>
+                        <?php endif; ?>
 
                         <?php if ((bool) $job['pdf_ready']): ?>
-                            <p>
-                                PDF de <?= View::escape((string) $job['pdf_size_label']) ?>,
-                                <?= (int) $job['pdf_pages'] ?> páginas.
-                                <?php if ((string) $job['expires_at_iso'] !== ''): ?>
-                                    Disponible hasta <?= View::escape((string) $job['expires_at_iso']) ?>.
-                                <?php endif; ?>
-                            </p>
                             <?php if ((string) $job['download_url'] !== ''): ?>
-                                <a class="button" href="<?= View::escape((string) $job['download_url']) ?>">Descargar PDF</a>
+                                <p class="job-pdf">
+                                    PDF de <?= View::escape((string) $job['pdf_size_label']) ?>
+                                    · <?= (int) $job['pdf_pages'] ?> páginas
+                                </p>
+                                <p class="muted job-info">
+                                    Disponible hasta <?= View::escape((string) $job['expires_at_label']) ?>.
+
+                                    <?php if ((int) $job['expires_in'] > 0): ?>
+                                        <?= View::escape((string) $job['expires_in_label']) ?>.
+                                    <?php endif; ?>
+                                </p>
+                                <p class="job-actions">
+                                    <a class="button" href="<?= View::escape((string) $job['download_url']) ?>">
+                                        Descargar PDF
+                                    </a>
+                                </p>
+                            <?php else: ?>
+                                <p class="muted job-info">
+                                    El PDF ya no está disponible. Genera uno nuevo desde el formulario.
+                                </p>
                             <?php endif; ?>
                         <?php endif; ?>
 
-                        <p class="muted">
-                            Telegram: <?= View::escape((string) $job['telegram']['label']) ?>
-                            · Correo: <?= View::escape((string) $job['mail']['label']) ?>
-                        </p>
+                        <div class="job-destinations">
+                            <span
+                                class="chip chip--<?= View::escape((string) $job['telegram']['status']) ?>"
+                                <?= (string) $job['telegram']['error'] !== '' ? 'title="' . View::escape((string) $job['telegram']['error']) . '"' : '' ?>>
+                                Telegram: <?= View::escape((string) $job['telegram']['label']) ?>
+                            </span>
+                            <span
+                                class="chip chip--<?= View::escape((string) $job['mail']['status']) ?>"
+                                <?= (string) $job['mail']['error'] !== '' ? 'title="' . View::escape((string) $job['mail']['error']) . '"' : '' ?>>
+                                Correo: <?= View::escape((string) $job['mail']['label']) ?>
+                            </span>
+                        </div>
 
                         <?php if ((bool) $job['has_error']): ?>
-                            <p class="alert"><?= View::escape((string) $job['error']) ?></p>
+                            <p class="alert job-error"><?= View::escape((string) $job['error']) ?></p>
                         <?php endif; ?>
 
                         <?php if ((bool) $job['can_retry']): ?>
-                            <button class="ghost retry" type="button" data-job="<?= View::escape((string) $job['id']) ?>">
-                                Reintentar envío
-                            </button>
+                            <p class="job-actions">
+                                <button class="ghost retry" type="button" data-job="<?= View::escape((string) $job['id']) ?>">
+                                    Reintentar envío
+                                </button>
+                            </p>
                         <?php endif; ?>
                     </article>
                 <?php endforeach; ?>

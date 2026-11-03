@@ -322,6 +322,73 @@ progress::-moz-progress-bar {
     margin: 0.5rem 0;
 }
 
+.job-info {
+    margin-top: 0.45rem;
+    line-height: 1.5;
+}
+
+.job-pdf {
+    margin-top: 0.75rem;
+    font-weight: 600;
+}
+
+.job-actions {
+    margin-top: 0.85rem;
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.job-destinations {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.9rem;
+}
+
+.chip {
+    padding: 0.28rem 0.75rem;
+    border-radius: 999px;
+    background: #edeae2;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.chip--sent {
+    background: #eef3ef;
+    color: var(--accent);
+}
+
+.chip--failed {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.badge--completed {
+    background: #eef3ef;
+    color: var(--accent);
+}
+
+.badge--failed {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.badge--processing,
+.badge--delivering,
+.badge--queued,
+.badge--uploading {
+    background: #eef3ef;
+    color: var(--accent);
+}
+
+.job-error {
+    margin-top: 0.75rem;
+}
+
 .login h1 {
     margin-bottom: 0.25rem;
 }
