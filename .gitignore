@@ -1,0 +1,14 @@
+/.env
+/vendor/
+/storage/*
+!/storage/.gitignore
+/.php-cs-fixer.cache
+/.phpunit.result.cache
+/composer.phar
+/node_modules/
+/*.log
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+/TESTIGOS DEL MES DE OCTUBRE.pdf

@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Willy\Support;
+
+use function password_hash;
+use function password_needs_rehash;
+use function password_verify;
+
+final class PasswordHasher
+{
+    public function hash(string $password): string
+    {
+        return password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    public function verify(string $password, string $hash): bool
+    {
+        if ($hash === '') {
+            return false;
+        }
+
+        return password_verify($password, $hash);
+    }
+
+    public function needsRehash(string $hash): bool
+    {
+        return password_needs_rehash($hash, PASSWORD_DEFAULT);
+    }
+}
