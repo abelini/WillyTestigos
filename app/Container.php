@@ -70,7 +70,7 @@ final class Container
         $jobFiles = new JobFiles($paths, $files, $config);
         $layout = new PdfLayout();
         $images = new ImageProcessor($files, $config);
-        $pdf = new PdfBuilder($layout, $files);
+        $pdf = new PdfBuilder($layout, $files, $clock);
         $mail = new MailSender();
         $telegram = new TelegramSender(new HttpClient(), $json);
         $delivery = new DeliveryService($config, $jobs, $files, $telegram, $mail, $clock, $logger);

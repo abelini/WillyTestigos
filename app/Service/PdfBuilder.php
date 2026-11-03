@@ -10,6 +10,7 @@ use Willy\Domain\PdfLayout;
 use Willy\Domain\PdfResult;
 use Willy\Domain\ProcessedImage;
 use Willy\Exception\ProcessingException;
+use Willy\Support\Clock;
 use Willy\Support\FileSystem;
 
 use function count;
@@ -18,16 +19,22 @@ use function mb_convert_encoding;
 
 final class PdfBuilder
 {
-    private const COVER_TITLE_Y = 92.0;
-    private const COVER_SUBTITLE_Y = 116.0;
-    private const COVER_LINE_Y = 84.0;
+    private const COVER_LINE_Y = 74.0;
     private const COVER_LINE_WIDTH = 60.0;
+    private const COVER_TITLE_Y = 88.0;
+    private const COVER_TITLE_HEIGHT = 16.0;
     private const COVER_TITLE_SIZE = 30.0;
+    private const COVER_PERIOD_Y = 108.0;
+    private const COVER_PERIOD_HEIGHT = 26.0;
+    private const COVER_PERIOD_SIZE = 40.0;
+    private const COVER_SUBTITLE_Y = 146.0;
+    private const COVER_SUBTITLE_HEIGHT = 12.0;
     private const COVER_SUBTITLE_SIZE = 16.0;
 
     public function __construct(
         private readonly PdfLayout $layout,
         private readonly FileSystem $files,
+        private readonly Clock $clock,
     ) {
     }
 
@@ -81,12 +88,37 @@ final class PdfBuilder
         $pdf->SetTextColor(20, 20, 20);
         $pdf->SetFont('Helvetica', 'B', self::COVER_TITLE_SIZE);
         $pdf->SetXY(0, self::COVER_TITLE_Y);
-        $pdf->Cell($this->layout->pageWidth(), 18, $this->latin1($job->month->title()), 0, 0, 'C');
+        $pdf->Cell(
+            $this->layout->pageWidth(),
+            self::COVER_TITLE_HEIGHT,
+            $this->latin1('TESTIGOS DEL MES'),
+            0,
+            0,
+            'C',
+        );
+
+        $pdf->SetFont('Helvetica', 'B', self::COVER_PERIOD_SIZE);
+        $pdf->SetXY(0, self::COVER_PERIOD_Y);
+        $pdf->Cell(
+            $this->layout->pageWidth(),
+            self::COVER_PERIOD_HEIGHT,
+            $this->latin1($job->coverPeriod($this->clock)),
+            0,
+            0,
+            'C',
+        );
 
         $pdf->SetTextColor(90, 90, 90);
         $pdf->SetFont('Helvetica', '', self::COVER_SUBTITLE_SIZE);
         $pdf->SetXY(0, self::COVER_SUBTITLE_Y);
-        $pdf->Cell($this->layout->pageWidth(), 12, $this->latin1($job->coverSubtitle), 0, 0, 'C');
+        $pdf->Cell(
+            $this->layout->pageWidth(),
+            self::COVER_SUBTITLE_HEIGHT,
+            $this->latin1($job->coverSubtitle),
+            0,
+            0,
+            'C',
+        );
     }
 
     /**
