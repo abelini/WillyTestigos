@@ -164,12 +164,7 @@ final class Application
             'X-Frame-Options' => 'DENY',
             'Referrer-Policy' => 'no-referrer',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
-            'Content-Security-Policy' => "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; "
-                . "form-action 'self'; img-src 'self' data: https://proyectoz.com.mx; "
-                . "style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com; "
-                . "script-src 'self' https://kit.fontawesome.com https://static.cloudflareinsights.com; "
-                . "font-src 'self' https://ka-f.fontawesome.com; "
-                . "connect-src 'self' https://ka-f.fontawesome.com https://cloudflareinsights.com",
+            'Content-Security-Policy' => "base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'",
         ];
 
         if ($container->config->sessionSecure) {
