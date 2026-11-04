@@ -61,13 +61,14 @@ final class DeviceFrameTest extends TestCase
         self::assertSame(self::WHITE, ImageFixture::rgbAt($framed, 1, $gapY));
     }
 
-    public function testItRoundsTheInnerCornersOfTheScreen(): void
+    public function testItRoundsTheInnerCornersWithoutPaintingOutsideTheBody(): void
     {
         $framed = (new DeviceFrame())->apply(ImageFixture::image(400, 800, 30, 120, 220));
         $screenLeft = 13;
         $screenTop = 8;
 
-        self::assertSame(12, ImageFixture::rgbAt($framed, $screenLeft + 1, $screenTop + 1)['red']);
+        self::assertSame(12, ImageFixture::rgbAt($framed, 30, 9)['red']);
+        self::assertSame(self::WHITE, ImageFixture::rgbAt($framed, $screenLeft, $screenTop));
 
         $center = ImageFixture::rgbAt($framed, $screenLeft + 200, $screenTop + 400);
 

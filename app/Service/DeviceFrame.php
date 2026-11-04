@@ -94,10 +94,71 @@ final class DeviceFrame
         $screenX = $bodyX + $bezel;
         $screenY = $bodyY + $bezel;
 
-        imagecopy($canvas, $screen, $screenX, $screenY, 0, 0, $screenWidth, $screenHeight);
-        $this->roundScreenCorners($canvas, $screenX, $screenY, $screenWidth, $screenHeight, $innerRadius, $body);
+        $this->copyRoundedScreen($canvas, $screen, $screenX, $screenY, $screenWidth, $screenHeight, $innerRadius);
 
         return $canvas;
+    }
+
+    /**
+     * Copia la captura recortando sus esquinas. Las zonas no copiadas dejan ver
+     * el cuerpo negro dentro del teléfono y el papel blanco fuera de él, sin
+     * pintar nunca fuera del contorno redondeado.
+     */
+    private function copyRoundedScreen(
+        GdImage $canvas,
+        GdImage $screen,
+        int $x,
+        int $y,
+        int $width,
+        int $height,
+        int $radius,
+    ): void {
+        $radius = min($radius, intdiv($width, 2), intdiv($height, 2));
+
+        if ($radius < 1) {
+            imagecopy($canvas, $screen, $x, $y, 0, 0, $width, $height);
+
+            return;
+        }
+
+        for ($offset = 0; $offset < $radius; $offset++) {
+            $inset = $this->cornerInset($radius, $offset);
+
+            $this->copyScreenRow($canvas, $screen, $x, $y, $width, $offset, $inset);
+            $this->copyScreenRow($canvas, $screen, $x, $y, $width, $height - 1 - $offset, $inset);
+        }
+
+        $middleHeight = $height - (2 * $radius);
+
+        if ($middleHeight > 0) {
+            imagecopy($canvas, $screen, $x, $y + $radius, 0, $radius, $width, $middleHeight);
+        }
+    }
+
+    private function copyScreenRow(
+        GdImage $canvas,
+        GdImage $screen,
+        int $x,
+        int $y,
+        int $width,
+        int $row,
+        int $inset,
+    ): void {
+        $segmentWidth = $width - (2 * $inset);
+
+        if ($segmentWidth < 1) {
+            return;
+        }
+
+        imagecopy($canvas, $screen, $x + $inset, $y + $row, $inset, $row, $segmentWidth, 1);
+    }
+
+    private function cornerInset(int $radius, int $offset): int
+    {
+        $distance = $radius - $offset - 0.5;
+        $half = (int) round(sqrt(($radius * $radius) - ($distance * $distance)));
+
+        return max(0, $radius - $half);
     }
 
     private function drawButtons(GdImage $canvas, int $bodyHeight, int $canvasWidth, int $depth, int $color): void
@@ -158,57 +219,5 @@ final class DeviceFrame
             $diameter,
             $color,
         );
-    }
-
-    private function roundScreenCorners(
-        GdImage $canvas,
-        int $x,
-        int $y,
-        int $width,
-        int $height,
-        int $radius,
-        int $color,
-    ): void {
-        $radius = min($radius, intdiv($width, 2), intdiv($height, 2));
-
-        if ($radius < 1) {
-            return;
-        }
-
-        for ($offset = 0; $offset < $radius; $offset++) {
-            $distance = $radius - $offset - 0.5;
-            $half = (int) round(sqrt(($radius * $radius) - ($distance * $distance)));
-            $inset = $radius - $half;
-
-            if ($inset < 1) {
-                continue;
-            }
-
-            imagefilledrectangle($canvas, $x, $y + $offset, $x + $inset - 1, $y + $offset, $color);
-            imagefilledrectangle(
-                $canvas,
-                $x + $width - $inset,
-                $y + $offset,
-                $x + $width - 1,
-                $y + $offset,
-                $color,
-            );
-            imagefilledrectangle(
-                $canvas,
-                $x,
-                $y + $height - 1 - $offset,
-                $x + $inset - 1,
-                $y + $height - 1 - $offset,
-                $color,
-            );
-            imagefilledrectangle(
-                $canvas,
-                $x + $width - $inset,
-                $y + $height - 1 - $offset,
-                $x + $width - 1,
-                $y + $height - 1 - $offset,
-                $color,
-            );
-        }
     }
 }
