@@ -17,10 +17,10 @@ use Willy\Support\View;
 
     <link rel="stylesheet" href="/assets/app.css?v=5">
 
-    <link rel="icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-160x160.png" sizes="32x32" />
-    <link rel="icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-320x320.png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-320x320.png" />
-    <meta name="msapplication-TileImage" content="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-320x320.png" />
+    <link rel="icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-160x160.png" type="image/png" sizes="160x160">
+    <link rel="icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-320x320.png" type="image/png" sizes="320x320">
+    <link rel="apple-touch-icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-320x320.png">
+    <meta name="msapplication-TileImage" content="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-320x320.png">
 
     <script src="https://kit.fontawesome.com/9bef064d64.js" crossorigin="anonymous" referrerpolicy="origin"></script>
 </head>
