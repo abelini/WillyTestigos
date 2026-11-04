@@ -89,7 +89,16 @@ Si `TELEGRAM_*` o `MAIL_*` están incompletos, ese canal se marca como omitido y
 composer serve
 ```
 
-Abre `http://127.0.0.1:8000`. El comando usa `bin/dev-router.php` para que las rutas de la API funcionen con el servidor embebido.
+Abre `http://localhost:8000` (no `127.0.0.1`). El comando usa `bin/dev-router.php` para que las rutas de la API funcionen con el servidor embebido.
+
+Antes de arrancar, configura en `.env`:
+
+- `APP_URL=http://localhost:8000` (el host debe coincidir para que la cookie de sesión funcione).
+- `APP_PASSWORD_HASH` con el resultado de `composer hash-password`.
+- `WORKER_MODE=inline` en Windows, para no depender de `exec`.
+- `PHP_CLI_BINARY=` vacío, para que use el binario PHP actual.
+
+El kit de Font Awesome solo autoriza determinados dominios; por eso en local hay que usar `localhost` y no `127.0.0.1`.
 
 Para ejecutar todas las verificaciones:
 

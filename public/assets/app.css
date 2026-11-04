@@ -160,6 +160,25 @@ select {
     font: inherit;
 }
 
+.field .input-icon {
+    position: relative;
+    display: block;
+    font-size: 1rem;
+}
+
+.input-icon > i {
+    position: absolute;
+    top: 50%;
+    left: 0.9rem;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.input-icon > input {
+    padding-left: 2.6rem;
+}
+
 button,
 .button {
     display: inline-flex;
@@ -216,6 +235,21 @@ button.ghost {
     pointer-events: none;
 }
 
+.drop-icon {
+    font-size: 1.9rem;
+    line-height: 1;
+    color: var(--muted);
+}
+
+.drop.ready .drop-icon,
+.drop.over .drop-icon {
+    color: var(--accent);
+}
+
+.drop.needs-files .drop-icon {
+    color: var(--danger);
+}
+
 .drop span {
     color: var(--muted);
     font-size: 0.88rem;
@@ -238,6 +272,9 @@ button.ghost {
 }
 
 .selection {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
     margin: -0.35rem 0 1rem;
     padding: 0.55rem 0.8rem;
     border-left: 3px solid var(--accent);
@@ -246,6 +283,14 @@ button.ghost {
     color: var(--accent);
     font-size: 0.88rem;
     overflow-wrap: anywhere;
+}
+
+.selection[hidden] {
+    display: none;
+}
+
+.selection > i {
+    margin-top: 0.15rem;
 }
 
 progress {
@@ -258,6 +303,10 @@ progress {
     overflow: hidden;
     background: #e8e3d9;
     appearance: none;
+}
+
+progress[hidden] {
+    display: none;
 }
 
 progress::-webkit-progress-bar {
@@ -273,16 +322,34 @@ progress::-moz-progress-bar {
 }
 
 #progress-text {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
     margin-top: 0.5rem;
 }
 
+#progress-text[hidden] {
+    display: none;
+}
+
 .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
     margin-top: 0.85rem;
     padding: 0.7rem 0.9rem;
     border-radius: 10px;
     background: var(--danger-bg);
     color: var(--danger);
     font-size: 0.92rem;
+}
+
+.alert[hidden] {
+    display: none;
+}
+
+.alert > i {
+    margin-top: 0.2rem;
 }
 
 .alert.success {
@@ -309,6 +376,9 @@ progress::-moz-progress-bar {
 }
 
 .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     padding: 0.2rem 0.7rem;
     border-radius: 999px;
     background: #eef3ef;
@@ -316,6 +386,29 @@ progress::-moz-progress-bar {
     font-size: 0.78rem;
     font-weight: 600;
     white-space: nowrap;
+}
+
+.job h3 > i,
+.job-pdf > i,
+.job-info > i,
+.eyebrow > i {
+    margin-right: 0.4rem;
+}
+
+.job h3 > i,
+.job-info > i,
+.eyebrow > i {
+    color: var(--muted);
+}
+
+.job-pdf > i {
+    color: var(--accent);
+}
+
+.empty {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .job progress {
@@ -348,6 +441,9 @@ progress::-moz-progress-bar {
 }
 
 .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     padding: 0.28rem 0.75rem;
     border-radius: 999px;
     background: #edeae2;
@@ -397,8 +493,47 @@ progress::-moz-progress-bar {
     margin-top: 1.2rem;
 }
 
+.login-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.login-banner {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.login-body {
+    padding: 1.5rem;
+}
+
+.fa-spin {
+    animation: willy-spin 1.2s linear infinite;
+}
+
+@keyframes willy-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fa-spin {
+        animation: none;
+    }
+}
+
 @media (max-width: 560px) {
     .card {
+        padding: 1.15rem;
+    }
+
+    .login-card {
+        padding: 0;
+    }
+
+    .login-body {
         padding: 1.15rem;
     }
 

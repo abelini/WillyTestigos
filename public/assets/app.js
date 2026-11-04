@@ -20,7 +20,14 @@
     const dropZone = document.getElementById('drop-zone');
     const dropTitle = document.getElementById('drop-title');
     const dropHint = document.getElementById('drop-hint');
+    const dropIcon = document.getElementById('drop-icon');
     const selection = document.getElementById('selection');
+    const selectionText = document.getElementById('selection-text');
+    const messageText = document.getElementById('message-text');
+    const messageIcon = document.getElementById('message-icon');
+    const generateLabel = document.getElementById('generate-label');
+    const generateIcon = document.getElementById('generate-icon');
+    const progressLabel = document.getElementById('progress-label');
 
     const maxFiles = Number.isInteger(config.maxFiles) ? config.maxFiles : 200;
     const maxFileMb = Number.isInteger(config.maxFileMb) ? config.maxFileMb : 25;
@@ -35,8 +42,17 @@
         }
 
         message.classList.toggle('success', kind === 'success');
-        message.textContent = text;
         message.hidden = text === '';
+
+        if (messageText) {
+            messageText.textContent = text;
+        }
+
+        if (messageIcon) {
+            messageIcon.className = kind === 'success'
+                ? 'fa-solid fa-circle-check'
+                : 'fa-solid fa-circle-exclamation';
+        }
     };
 
     const formatSize = (bytes) => {
@@ -77,6 +93,12 @@
             dropZone.classList.toggle('needs-files', hasFiles && (Boolean(invalid) || overLimit));
         }
 
+        if (dropIcon) {
+            dropIcon.className = hasFiles
+                ? 'fa-solid fa-images drop-icon'
+                : 'fa-solid fa-cloud-arrow-up drop-icon';
+        }
+
         if (dropTitle) {
             dropTitle.textContent = hasFiles
                 ? `${selectedFiles.length} captura${selectedFiles.length === 1 ? '' : 's'} seleccionada${selectedFiles.length === 1 ? '' : 's'}`
@@ -89,8 +111,8 @@
                 : defaultHint;
         }
 
-        if (generate) {
-            generate.textContent = hasFiles ? `Generar PDF (${selectedFiles.length})` : 'Generar PDF';
+        if (generateLabel && generate) {
+            generateLabel.textContent = hasFiles ? `Generar PDF (${selectedFiles.length})` : 'Generar PDF';
         }
 
         if (!selection) {
@@ -98,7 +120,10 @@
         }
 
         if (!hasFiles) {
-            selection.textContent = '';
+            if (selectionText) {
+                selectionText.textContent = '';
+            }
+
             selection.hidden = true;
             return;
         }
@@ -108,7 +133,10 @@
         const extra = selectedFiles.length - names.length;
         const list = extra > 0 ? `${names.join(', ')} y ${extra} más` : names.join(', ');
 
-        selection.textContent = `${list} · ${formatSize(total)}`;
+        if (selectionText) {
+            selectionText.textContent = `${list} · ${formatSize(total)}`;
+        }
+
         selection.hidden = false;
     };
 
@@ -131,11 +159,29 @@
 
     const setProgress = (value, text) => {
         if (progress) {
+            progress.hidden = text === '';
             progress.value = value;
         }
 
         if (progressText) {
-            progressText.textContent = text;
+            progressText.hidden = text === '';
+        }
+
+        if (progressLabel) {
+            progressLabel.textContent = text;
+        }
+    };
+
+    const setBusy = (busy) => {
+        if (form) {
+            form.classList.toggle('busy', busy);
+            form.setAttribute('aria-busy', busy ? 'true' : 'false');
+        }
+
+        if (generateIcon) {
+            generateIcon.className = busy
+                ? 'fa-solid fa-gear fa-spin'
+                : 'fa-solid fa-file-pdf';
         }
     };
 
@@ -240,9 +286,13 @@
 
             selectedFiles = files;
             disableForm(true);
+            setBusy(true);
             showMessage('');
             setProgress(0, 'Creando el trabajo...');
-            generate.textContent = 'Preparando...';
+
+            if (generateLabel) {
+                generateLabel.textContent = 'Preparando...';
+            }
 
             if (progress) {
                 progress.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -291,6 +341,7 @@
             } catch (error) {
                 showMessage(error.message || 'No se pudo generar el PDF.');
                 disableForm(false);
+                setBusy(false);
                 renderSelection();
 
                 if (message) {

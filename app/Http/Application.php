@@ -165,8 +165,11 @@ final class Application
             'Referrer-Policy' => 'no-referrer',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
             'Content-Security-Policy' => "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; "
-                . "form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
-                . "connect-src 'self'",
+                . "form-action 'self'; img-src 'self' data:; "
+                . "style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com; "
+                . "script-src 'self' https://kit.fontawesome.com; "
+                . "font-src 'self' https://ka-f.fontawesome.com; "
+                . "connect-src 'self' https://ka-f.fontawesome.com",
         ];
 
         if ($container->config->sessionSecure) {

@@ -12,10 +12,11 @@ use Willy\Support\View;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= View::escape((string) $data['title']) ?> · Testigos</title>
-    <link rel="stylesheet" href="/assets/app.css?v=4">
+    <link rel="stylesheet" href="/assets/app.css?v=5">
+    <script src="https://kit.fontawesome.com/9bef064d64.js" crossorigin="anonymous" referrerpolicy="origin"></script>
 </head>
 <body data-config="<?= View::escape((string) $data['config']) ?>">
 <?= $data['content'] ?>
-<script src="/assets/app.js?v=2" defer></script>
+<script src="/assets/app.js?v=3" defer></script>
 </body>
 </html>

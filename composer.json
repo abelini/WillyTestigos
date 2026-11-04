@@ -44,7 +44,7 @@
         "no-fqdn": "php bin/check-no-fqdn.php",
         "oop": "php bin/check-oop.php",
         "hash-password": "php bin/hash-password.php",
-        "serve": "php -S 127.0.0.1:8000 -t public bin/dev-router.php"
+        "serve": "php -S localhost:8000 -t public bin/dev-router.php"
     },
     "config": {
         "optimize-autoloader": true,
