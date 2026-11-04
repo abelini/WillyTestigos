@@ -147,9 +147,9 @@ final class Application
     {
         return Response::html(
             '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Error</title></head>'
-            . '<body><h1>Error de configuración</h1>'
-            . '<p>No se pudo iniciar la aplicación. Revisa el archivo .env y los permisos de storage.</p>'
-            . '</body></html>',
+                . '<body><h1>Error de configuración</h1>'
+                . '<p>No se pudo iniciar la aplicación. Revisa el archivo .env y los permisos de storage.</p>'
+                . '</body></html>',
             500,
         );
     }
@@ -165,7 +165,7 @@ final class Application
             'Referrer-Policy' => 'no-referrer',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
             'Content-Security-Policy' => "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; "
-                . "form-action 'self'; img-src 'self' data:; "
+                . "form-action 'self'; img-src 'self' data: https://proyectoz.com.mx; "
                 . "style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com; "
                 . "script-src 'self' https://kit.fontawesome.com; "
                 . "font-src 'self' https://ka-f.fontawesome.com; "
