@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Willy\Tests;
 
 use Random\Randomizer;
+use Willy\Service\DeviceFrame;
 use Willy\Support\Config;
 use Willy\Support\FileSystem;
 use Willy\Support\Json;
@@ -80,6 +81,11 @@ final class TestEnvironment
     public static function files(): FileSystem
     {
         return new FileSystem(new Randomizer());
+    }
+
+    public static function frame(): DeviceFrame
+    {
+        return new DeviceFrame();
     }
 
     public static function json(): Json

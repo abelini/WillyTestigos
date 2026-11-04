@@ -39,6 +39,7 @@ final class ImageProcessor
     public function __construct(
         private readonly FileSystem $files,
         private readonly Config $config,
+        private readonly DeviceFrame $frame,
     ) {
     }
 
@@ -136,10 +137,12 @@ final class ImageProcessor
 
         $this->files->ensureDirectory(dirname($destination));
 
-        if (!imagejpeg($canvas, $destination, $this->config->jpegQuality)) {
+        $framed = $this->frame->apply($canvas);
+
+        if (!imagejpeg($framed, $destination, $this->config->jpegQuality)) {
             throw new ProcessingException('No se pudo guardar la imagen procesada.');
         }
 
-        return new ProcessedImage($destination, $targetWidth, $targetHeight);
+        return new ProcessedImage($destination, imagesx($framed), imagesy($framed));
     }
 }

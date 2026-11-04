@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Willy\Tests;
 
 use GdImage;
+use RuntimeException;
 
 use function imagecolorallocate;
+use function imagecolorat;
+use function imagecolorsforindex;
 use function imagecreatetruecolor;
 use function imagefill;
 use function imagejpeg;
-use function is_int;
 
 final class ImageFixture
 {
@@ -24,19 +26,55 @@ final class ImageFixture
             return;
         }
 
+        $image = self::image($width, $height, $red, $green, $blue);
+
+        imagejpeg($image, $path, 85);
+    }
+
+    public static function image(int $width, int $height, int $red, int $green, int $blue): GdImage
+    {
+        if ($width < 1 || $height < 1) {
+            throw new RuntimeException('Las dimensiones de la imagen de prueba no son válidas.');
+        }
+
+        if ($red < 0 || $red > 255 || $green < 0 || $green > 255 || $blue < 0 || $blue > 255) {
+            throw new RuntimeException('El color de prueba no es válido.');
+        }
+
         $image = imagecreatetruecolor($width, $height);
 
         if (!$image instanceof GdImage) {
-            return;
+            throw new RuntimeException('No se pudo crear la imagen de prueba.');
         }
 
         $color = imagecolorallocate($image, $red, $green, $blue);
 
-        if (!is_int($color)) {
-            return;
+        if ($color === false) {
+            throw new RuntimeException('No se pudo asignar el color de prueba.');
         }
 
         imagefill($image, 0, 0, $color);
-        imagejpeg($image, $path, 85);
+
+        return $image;
+    }
+
+    /**
+     * @return array{red: int, green: int, blue: int}
+     */
+    public static function rgbAt(GdImage $image, int $x, int $y): array
+    {
+        $color = imagecolorat($image, $x, $y);
+
+        if ($color === false) {
+            throw new RuntimeException('No se pudo leer el color de la imagen de prueba.');
+        }
+
+        $parts = imagecolorsforindex($image, $color);
+
+        return [
+            'red' => (int) $parts['red'],
+            'green' => (int) $parts['green'],
+            'blue' => (int) $parts['blue'],
+        ];
     }
 }

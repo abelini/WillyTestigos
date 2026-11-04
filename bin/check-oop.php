@@ -68,7 +68,11 @@ $exact = [
 
 $prefixes = [
     'curl_' => ['app/Support/HttpClient.php'],
-    'image' => ['app/Service/ImageProcessor.php', 'tests/ImageFixture.php'],
+    'image' => [
+        'app/Service/DeviceFrame.php',
+        'app/Service/ImageProcessor.php',
+        'tests/ImageFixture.php',
+    ],
     'exif_' => ['app/Service/ImageProcessor.php'],
     'password_' => ['app/Support/PasswordHasher.php'],
     'session_' => ['app/Support/Session.php'],

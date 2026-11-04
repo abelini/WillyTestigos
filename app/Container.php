@@ -9,6 +9,7 @@ use Willy\Domain\PdfLayout;
 use Willy\Repository\JobStore;
 use Willy\Service\CleanupService;
 use Willy\Service\DeliveryService;
+use Willy\Service\DeviceFrame;
 use Willy\Service\ImageProcessor;
 use Willy\Service\JobDispatcher;
 use Willy\Service\JobFiles;
@@ -69,7 +70,7 @@ final class Container
         $jobs = new JobStore($paths, $files, $json, $clock, $random);
         $jobFiles = new JobFiles($paths, $files, $config);
         $layout = new PdfLayout();
-        $images = new ImageProcessor($files, $config);
+        $images = new ImageProcessor($files, $config, new DeviceFrame());
         $pdf = new PdfBuilder($layout, $files, $clock);
         $mail = new MailSender();
         $telegram = new TelegramSender(new HttpClient(), $json);
