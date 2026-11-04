@@ -167,9 +167,9 @@ final class Application
             'Content-Security-Policy' => "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; "
                 . "form-action 'self'; img-src 'self' data: https://proyectoz.com.mx; "
                 . "style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com; "
-                . "script-src 'self' https://kit.fontawesome.com; "
+                . "script-src 'self' https://kit.fontawesome.com https://static.cloudflareinsights.com; "
                 . "font-src 'self' https://ka-f.fontawesome.com; "
-                . "connect-src 'self' https://ka-f.fontawesome.com",
+                . "connect-src 'self' https://ka-f.fontawesome.com https://cloudflareinsights.com",
         ];
 
         if ($container->config->sessionSecure) {
