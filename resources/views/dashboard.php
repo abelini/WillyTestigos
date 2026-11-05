@@ -30,7 +30,7 @@ $jobs = $data['jobs'];
     <section class="card">
         <h2>
             <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
-            Nuevo PDF de Testigos
+            Generación manual de PDF de testigos
         </h2>
         <form id="upload-form" novalidate>
             <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
@@ -52,8 +52,7 @@ $jobs = $data['jobs'];
             <label class="drop" id="drop-zone">
                 <input id="photos" type="file" accept="image/jpeg,image/png" multiple>
                 <i id="drop-icon" class="fa-solid fa-cloud-arrow-up drop-icon" aria-hidden="true"></i>
-                <strong id="drop-title">Selecciona o arrastra las capturas</strong>
-                <span id="drop-hint">JPEG o PNG · hasta <?= (int) $data['max_files'] ?> archivos · máximo <?= (int) $data['max_file_mb'] ?> MB por archivo</span>
+                <strong id="drop-title">Selecciona de la Galería o arrastra las capturas</strong>
             </label>
             <p id="selection" class="selection" aria-live="polite" hidden>
                 <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
@@ -78,38 +77,37 @@ $jobs = $data['jobs'];
     </section>
 
     <?php if ((bool) $data['wordpress']): ?>
-    <section class="card">
-        <h2>
-            <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
-            Capturas desde WordPress
-        </h2>
-        <p class="muted">
-            Toma hasta <?= (int) $data['wp_daily'] ?> notas diarias con "<?= View::escape((string) $data['wp_term']) ?>"
-            y dibuja sus capturas móviles para el mes elegido.
-        </p>
-        <form id="wordpress-form" novalidate>
-            <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
+        <section class="card">
+            <h2>
+                <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                Generación automática desde WordPress
+            </h2>
+            <p class="muted">
+                Esta opción toma hasta <?= $data['wp_daily'] ?> notas diarias del mes elegido.
+            </p>
+            <form id="wordpress-form" novalidate>
+                <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
 
-            <label class="field">
-                <span>
-                    <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
-                    Mes
-                </span>
-                <select id="wp-month" name="month">
-                    <?php foreach ($months as $month): ?>
-                        <option value="<?= $month->number() ?>" <?= $month === $detected ? 'selected' : '' ?>>
-                            <?= View::escape($month->label()) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
+                <label class="field">
+                    <span>
+                        <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+                        Mes
+                    </span>
+                    <select id="wp-month" name="month">
+                        <?php foreach ($months as $month): ?>
+                            <option value="<?= $month->number() ?>" <?= $month === $detected ? 'selected' : '' ?>>
+                                <?= View::escape($month->label()) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
 
-            <button id="wp-generate" type="submit">
-                <i id="wp-generate-icon" class="fa-brands fa-wordpress" aria-hidden="true"></i>
-                <span id="wp-generate-label">Generar desde WordPress</span>
-            </button>
-        </form>
-    </section>
+                <button id="wp-generate" type="submit">
+                    <i id="wp-generate-icon" class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                    <span id="wp-generate-label">Generar desde WordPress</span>
+                </button>
+            </form>
+        </section>
     <?php endif; ?>
 
     <section class="card">
