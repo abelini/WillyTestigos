@@ -358,20 +358,72 @@
     const wpGenerateIcon = document.getElementById('wp-generate-icon');
 
     if (wordpressForm && wpMonth && wpGenerate) {
-        wordpressForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            wpGenerate.disabled = true;
-            showMessage('');
+        const setWordPressBusy = (busy, text = '') => {
+            [wordpressForm, form].forEach((element) => {
+                if (element) {
+                    element.classList.toggle('busy', busy);
+                    element.setAttribute('aria-busy', busy ? 'true' : 'false');
+                }
+            });
 
-            if (wpGenerateLabel) {
-                wpGenerateLabel.textContent = 'Consultando WordPress...';
-            }
+            [wpGenerate, generate].forEach((button) => {
+                if (button) {
+                    button.disabled = busy;
+                }
+            });
+
+            [wpMonth, month].forEach((select) => {
+                if (select) {
+                    select.disabled = busy;
+                }
+            });
 
             if (wpGenerateIcon) {
-                wpGenerateIcon.className = 'fa-solid fa-gear fa-spin';
+                wpGenerateIcon.className = busy
+                    ? 'fa-solid fa-gear fa-spin'
+                    : 'fa-brands fa-wordpress';
             }
 
-            setProgress(0, 'Creando el trabajo de WordPress...');
+            if (generateIcon) {
+                generateIcon.className = busy
+                    ? 'fa-solid fa-gear fa-spin'
+                    : 'fa-solid fa-file-pdf';
+            }
+
+            if (wpGenerateLabel) {
+                wpGenerateLabel.textContent = busy
+                    ? 'Consultando WordPress…'
+                    : 'Generar desde WordPress';
+            }
+
+            if (progress) {
+                progress.hidden = !busy;
+                progress.value = 0;
+
+                if (busy) {
+                    progress.removeAttribute('value');
+                }
+            }
+
+            if (progressText) {
+                progressText.hidden = !busy;
+                progressText.classList.toggle('busy', busy);
+            }
+
+            if (progressLabel) {
+                progressLabel.textContent = text;
+            }
+        };
+
+        wordpressForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (wpGenerate.disabled) {
+                return;
+            }
+
+            showMessage('');
+            setWordPressBusy(true, 'Consultando el portal y creando el trabajo…');
 
             try {
                 const data = new FormData();
@@ -391,17 +443,7 @@
                 window.location.reload();
             } catch (error) {
                 showMessage(error.message || 'No se pudo generar desde WordPress.');
-                wpGenerate.disabled = false;
-
-                if (wpGenerateLabel) {
-                    wpGenerateLabel.textContent = 'Generar desde WordPress';
-                }
-
-                if (wpGenerateIcon) {
-                    wpGenerateIcon.className = 'fa-brands fa-wordpress';
-                }
-
-                setProgress(0, '');
+                setWordPressBusy(false);
             }
         });
     }

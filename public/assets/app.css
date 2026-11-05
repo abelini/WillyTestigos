@@ -208,6 +208,33 @@ button:disabled {
     transform: none;
 }
 
+form.busy {
+    cursor: progress;
+}
+
+form.busy button,
+form.busy select,
+form.busy input,
+form.busy .drop {
+    pointer-events: none;
+}
+
+button:disabled i.fa-spin {
+    font-size: 1.35rem;
+    animation-duration: 0.7s;
+}
+
+#progress-text.busy {
+    font-weight: 600;
+    color: var(--ink);
+}
+
+#progress-text.busy i {
+    font-size: 1.5rem;
+    color: var(--accent);
+    animation-duration: 0.7s;
+}
+
 button.ghost {
     background: transparent;
     color: var(--accent);
