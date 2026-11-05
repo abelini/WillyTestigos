@@ -50,21 +50,21 @@ final class WpPostRenderer
     private const WIDTH = 390;
     private const HEIGHT = 844;
 
-    private const RED_HEIGHT = 34;
-    private const LOGO_TOP = 58;
+    private const RED_HEIGHT = 42;
+    private const LOGO_TOP = 66;
     private const LOGO_HEIGHT = 46;
 
-    private const DATE_BASELINE = 138;
+    private const DATE_BASELINE = 164;
     private const DATE_SIZE = 12;
-    private const TITLE_BASELINE = 174;
+    private const TITLE_BASELINE = 200;
     private const TITLE_SIZE = 22;
     private const TITLE_LINE = 30;
     private const TITLE_MAX_LINES = 4;
     private const CATEGORY_GAP = 28;
     private const CATEGORY_SIZE = 12;
-    private const IMAGE_GAP = 14;
+    private const IMAGE_GAP = 12;
     private const IMAGE_HEIGHT = 232;
-    private const BODY_GAP = 20;
+    private const BODY_GAP = 18;
     private const BODY_SIZE = 15;
     private const BODY_LINE = 23;
     private const PADDING = 18;
@@ -75,6 +75,9 @@ final class WpPostRenderer
 
     private const ISLAND_WIDTH = 96;
     private const ISLAND_HEIGHT = 24;
+
+    private const DIVIDER_Y = 136;
+    private const DIVIDER_THICKNESS = 1;
 
     private const FONT_TITLE = 'oswald-bold.ttf';
     private const FONT_BODY = 'roboto-regular.ttf';
@@ -92,6 +95,8 @@ final class WpPostRenderer
     private const BODY = [32, 32, 32];
     /** @var list<int> */
     private const PLACEHOLDER = [228, 228, 228];
+    /** @var list<int> */
+    private const DIVIDER = [82, 82, 82];
 
     public function __construct(
         private readonly Config $config,
@@ -112,6 +117,7 @@ final class WpPostRenderer
 
         $canvas = $this->canvas($imageTop);
 
+        $this->drawDivider($canvas);
         $this->drawLogo($canvas);
         $this->drawHamburger($canvas);
         $this->drawIsland($canvas);
@@ -199,12 +205,29 @@ final class WpPostRenderer
         return $canvas;
     }
 
+    /**
+     * Línea gris tenue que cierra el encabezado del logo y lo separa de la fecha.
+     */
+    private function drawDivider(GdImage $canvas): void
+    {
+        $top = self::DIVIDER_Y * self::SCALE;
+
+        imagefilledrectangle(
+            $canvas,
+            0,
+            $top,
+            self::WIDTH * self::SCALE,
+            $top + (self::DIVIDER_THICKNESS * self::SCALE),
+            $this->color($canvas, self::DIVIDER),
+        );
+    }
+
     private function drawHamburger(GdImage $canvas): void
     {
         $color = $this->color($canvas, self::WHITE);
         $right = self::HAMBURGER_LEFT + self::HAMBURGER_WIDTH;
 
-        foreach ([10, 16, 22] as $top) {
+        foreach ([14, 20, 26] as $top) {
             imagefilledrectangle(
                 $canvas,
                 self::HAMBURGER_LEFT * self::SCALE,

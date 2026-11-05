@@ -39,9 +39,10 @@ final class WpPostRendererTest extends TestCase
         self::assertSame(2532, imagesy($canvas));
         $this->assertRgb($canvas, 6, 6, [186, 59, 48]);
         $this->assertRgb($canvas, 6, 160, [14, 14, 14]);
-        $this->assertRgb($canvas, 585, 51, [14, 14, 14]);
-        $this->assertRgb($canvas, 990, 33, [255, 255, 255]);
-        $this->assertRgb($canvas, 1080, 51, [186, 59, 48]);
+        $this->assertRgb($canvas, 600, 409, [82, 82, 82]);
+        $this->assertRgb($canvas, 585, 63, [14, 14, 14]);
+        $this->assertRgb($canvas, 990, 45, [255, 255, 255]);
+        $this->assertRgb($canvas, 1080, 63, [186, 59, 48]);
         $this->assertRgb($canvas, 600, 2530, [255, 255, 255]);
     }
 
