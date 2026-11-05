@@ -388,6 +388,19 @@ progress::-moz-progress-bar {
     white-space: nowrap;
 }
 
+.job-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.badge--wordpress {
+    background: #eaf1fb;
+    color: #1f5f9e;
+}
+
 .job h3 > i,
 .job-pdf > i,
 .job-info > i,

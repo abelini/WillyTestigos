@@ -8,7 +8,6 @@ use CurlFile;
 use CurlHandle;
 use Willy\Exception\DeliveryException;
 
-use function curl_close;
 use function curl_error;
 use function curl_exec;
 use function curl_getinfo;
@@ -58,39 +57,35 @@ final class HttpClient
             throw new DeliveryException('No se pudo iniciar cURL.');
         }
 
-        try {
-            $options = [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => false,
-                CURLOPT_CONNECTTIMEOUT => 15,
-                CURLOPT_TIMEOUT => $timeout,
-                CURLOPT_USERAGENT => 'WillyTestigos/1.0',
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_SSL_VERIFYHOST => 2,
-            ];
+        $options = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_USERAGENT => 'WillyTestigos/1.0',
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+        ];
 
-            if ($post) {
-                $options[CURLOPT_POST] = true;
-                $options[CURLOPT_POSTFIELDS] = $payload;
-            } else {
-                $options[CURLOPT_HTTPGET] = true;
-            }
-
-            if (!curl_setopt_array($handle, $options)) {
-                throw new DeliveryException('No se pudieron configurar las opciones de cURL.');
-            }
-
-            $body = curl_exec($handle);
-
-            if (!is_string($body)) {
-                throw new DeliveryException('Error de conexión: ' . curl_error($handle));
-            }
-
-            $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
-
-            return new HttpResponse($status, $body);
-        } finally {
-            curl_close($handle);
+        if ($post) {
+            $options[CURLOPT_POST] = true;
+            $options[CURLOPT_POSTFIELDS] = $payload;
+        } else {
+            $options[CURLOPT_HTTPGET] = true;
         }
+
+        if (!curl_setopt_array($handle, $options)) {
+            throw new DeliveryException('No se pudieron configurar las opciones de cURL.');
+        }
+
+        $body = curl_exec($handle);
+
+        if (!is_string($body)) {
+            throw new DeliveryException('Error de conexión: ' . curl_error($handle));
+        }
+
+        $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+
+        return new HttpResponse($status, $body);
     }
 }

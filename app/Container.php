@@ -19,6 +19,9 @@ use Willy\Service\MailSender;
 use Willy\Service\PdfBuilder;
 use Willy\Service\TelegramSender;
 use Willy\Service\UploadService;
+use Willy\Service\WordPressSource;
+use Willy\Service\WpClient;
+use Willy\Service\WpPostRenderer;
 use Willy\Support\Clock;
 use Willy\Support\Config;
 use Willy\Support\FileSystem;
@@ -53,6 +56,7 @@ final class Container
         public readonly CleanupService $cleanup,
         public readonly LoginRateLimiter $limiter,
         public readonly UploadService $uploads,
+        public readonly WordPressSource $wordpress,
         public readonly Process $process,
     ) {
     }
@@ -76,12 +80,24 @@ final class Container
         $telegram = new TelegramSender(new HttpClient(), $json);
         $delivery = new DeliveryService($config, $jobs, $files, $telegram, $mail, $clock, $logger);
         $process = new Process();
+        $wordpress = new WordPressSource(
+            new WpClient(new HttpClient(), $json, $config, $clock),
+            new WpPostRenderer($config, $files),
+            $jobFiles,
+            $paths,
+            $files,
+            $json,
+            $logger,
+            $clock,
+            $config,
+        );
         $processor = new JobProcessor(
             $jobs,
             $jobFiles,
             $images,
             $pdf,
             $delivery,
+            $wordpress,
             $paths,
             $clock,
             $logger,
@@ -115,6 +131,7 @@ final class Container
                 $clock,
                 new SystemUploadGuard(),
             ),
+            wordpress: $wordpress,
             process: $process,
         );
     }

@@ -77,6 +77,41 @@ $jobs = $data['jobs'];
         </p>
     </section>
 
+    <?php if ((bool) $data['wordpress']): ?>
+    <section class="card">
+        <h2>
+            <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
+            Capturas desde WordPress
+        </h2>
+        <p class="muted">
+            Toma hasta <?= (int) $data['wp_daily'] ?> notas diarias con "<?= View::escape((string) $data['wp_term']) ?>"
+            y dibuja sus capturas móviles para el mes elegido.
+        </p>
+        <form id="wordpress-form" novalidate>
+            <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
+
+            <label class="field">
+                <span>
+                    <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+                    Mes
+                </span>
+                <select id="wp-month" name="month">
+                    <?php foreach ($months as $month): ?>
+                        <option value="<?= $month->number() ?>" <?= $month === $detected ? 'selected' : '' ?>>
+                            <?= View::escape($month->label()) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+
+            <button id="wp-generate" type="submit">
+                <i id="wp-generate-icon" class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                <span id="wp-generate-label">Generar desde WordPress</span>
+            </button>
+        </form>
+    </section>
+    <?php endif; ?>
+
     <section class="card">
         <h2>
             <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
@@ -111,11 +146,26 @@ $jobs = $data['jobs'];
                                 <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
                                 <?= View::escape((string) $job['title']) ?>
                             </h3>
-                            <span class="badge badge--<?= View::escape((string) $job['status']) ?>">
-                                <i class="fa-solid <?= View::escape($statusIcon) ?>" aria-hidden="true"></i>
-                                <?= View::escape((string) $job['status_label']) ?>
-                            </span>
+                            <div class="job-badges">
+                                <span class="badge badge--<?= View::escape((string) $job['status']) ?>">
+                                    <i class="fa-solid <?= View::escape($statusIcon) ?>" aria-hidden="true"></i>
+                                    <?= View::escape((string) $job['status_label']) ?>
+                                </span>
+                                <?php if ((string) $job['source'] === 'wordpress'): ?>
+                                    <span class="badge badge--wordpress">
+                                        <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                                        WordPress
+                                    </span>
+                                <?php endif; ?>
+                            </div>
                         </header>
+
+                        <?php if ((string) $job['source'] === 'wordpress' && (int) $job['wp_selected'] > 0): ?>
+                            <p class="muted job-info">
+                                <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                                <?= (int) $job['wp_rendered'] ?> de <?= (int) $job['wp_selected'] ?> notas de WordPress
+                            </p>
+                        <?php endif; ?>
 
                         <?php if ((bool) $job['is_active']): ?>
                             <progress max="100" value="<?= (int) $job['progress'] ?>"></progress>

@@ -351,6 +351,61 @@
         });
     }
 
+    const wordpressForm = document.getElementById('wordpress-form');
+    const wpMonth = document.getElementById('wp-month');
+    const wpGenerate = document.getElementById('wp-generate');
+    const wpGenerateLabel = document.getElementById('wp-generate-label');
+    const wpGenerateIcon = document.getElementById('wp-generate-icon');
+
+    if (wordpressForm && wpMonth && wpGenerate) {
+        wordpressForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            wpGenerate.disabled = true;
+            showMessage('');
+
+            if (wpGenerateLabel) {
+                wpGenerateLabel.textContent = 'Consultando WordPress...';
+            }
+
+            if (wpGenerateIcon) {
+                wpGenerateIcon.className = 'fa-solid fa-gear fa-spin';
+            }
+
+            setProgress(0, 'Creando el trabajo de WordPress...');
+
+            try {
+                const data = new FormData();
+                data.append('_csrf', config.csrf || '');
+                data.append('month', wpMonth.value);
+                await request('/api/jobs/wordpress', data);
+
+                try {
+                    window.sessionStorage.setItem(
+                        'willy.flash',
+                        'Trabajo de WordPress creado. Las capturas se están generando.',
+                    );
+                } catch (error) {
+                    // Si el navegador bloquea sessionStorage, seguimos con la recarga.
+                }
+
+                window.location.reload();
+            } catch (error) {
+                showMessage(error.message || 'No se pudo generar desde WordPress.');
+                wpGenerate.disabled = false;
+
+                if (wpGenerateLabel) {
+                    wpGenerateLabel.textContent = 'Generar desde WordPress';
+                }
+
+                if (wpGenerateIcon) {
+                    wpGenerateIcon.className = 'fa-brands fa-wordpress';
+                }
+
+                setProgress(0, '');
+            }
+        });
+    }
+
     if (dropZone && photos) {
         ['dragenter', 'dragover'].forEach((name) => {
             dropZone.addEventListener(name, (event) => {

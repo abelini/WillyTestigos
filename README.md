@@ -4,11 +4,14 @@ Aplicación web en PHP 8.5 que recibe capturas JPEG/PNG, genera un PDF mensual e
 
 La portada dice `TESTIGOS DEL MES DE {MES}` con el subtítulo `Portal: Proyecto Z`. Las fotos empiezan en la segunda hoja, con una cuadrícula de 4×2 (8 por hoja), márgenes de 6 mm y escala proporcional para no deformar las imágenes.
 
+También puede generar las capturas automáticamente desde WordPress: consulta la API REST del portal, toma hasta tres notas diarias que mencionan `UAS` y dibuja cada una como una vista móvil de iPhone antes de armar el PDF.
+
 ## Características
 
 - Un solo trabajo activo a la vez, con historial de trabajos anteriores.
 - Selector de los 12 meses. El mes detectado se preselecciona; los días 1 y 2 usan el mes anterior (enero 1–2 usa diciembre).
 - Subida secuencial foto por foto con barra de progreso y validación de MIME, tamaño y dimensiones.
+- Generación automática de capturas desde la API REST de WordPress, con render propio en GD y marco de iPhone.
 - Procesamiento en segundo plano sin cron. Si el servidor no puede lanzar el worker CLI, se procesa en línea al cerrar la respuesta.
 - Envío con Telegram Bot API (`sendDocument`) y SMTP con PHPMailer.
 - Limpieza automática al entrar a la aplicación, sin tareas programadas.
@@ -68,6 +71,9 @@ En Windows, asegúrate de que el usuario de OpenLiteSpeed/XAMPP pueda escribir e
 | `WORKER_MODE` | `auto`, `background` o `inline`. | `auto` |
 | `PHP_CLI_BINARY` | Binario PHP para el worker. Vacío usa `PHP_BINARY`. | vacío |
 | `TRUST_PROXY` | `true` si la app está detrás de Cloudflare proxied; usa `CF-Connecting-IP` como IP del cliente. | `false` |
+| `WP_BASE_URL` | URL base del portal WordPress. Vacío oculta la generación automática. | vacío |
+| `WP_SEARCH` | Término que deben mencionar las notas. | `UAS` |
+| `WP_DAILY_POSTS` | Máximo de notas por día (1–10). | `3` |
 | `TELEGRAM_BOT_TOKEN` | Token del bot de Telegram. | vacío |
 | `TELEGRAM_CHAT_ID` | Chat o canal de destino. | vacío |
 | `MAIL_HOST` | Servidor SMTP. | vacío |
@@ -82,6 +88,8 @@ En Windows, asegúrate de que el usuario de OpenLiteSpeed/XAMPP pueda escribir e
 `MAIL_ENCRYPTION` acepta `tls`/`starttls` para STARTTLS (normalmente puerto 587), `ssl`/`smtps` para TLS implícito (normalmente puerto 465), y `none` para SMTP sin cifrar.
 
 Si `TELEGRAM_*` o `MAIL_*` están incompletos, ese canal se marca como omitido y el PDF queda disponible para descarga.
+
+Con `WP_BASE_URL` configurado, el panel muestra la tarjeta «Capturas desde WordPress». El worker consulta `search=UAS` para el mes elegido, ordena las notas por fecha y toma hasta `WP_DAILY_POSTS` por día; si un día no tiene notas se salta. Dentro de cada día, las notas que llevan el término en el título tienen prioridad. Una nota que falle se registra y no interrumpe el resto del trabajo.
 
 ## Desarrollo local
 
@@ -118,6 +126,8 @@ El comando ejecuta PHP-CS-Fixer, PHPStan, PHPUnit y los chequeos propios de `nul
 6. El PDF queda disponible durante una hora. Al expirar, la limpieza lo elimina.
 7. La limpieza se ejecuta como máximo cada 5 minutos al abrir la aplicación.
 
+Para las capturas de WordPress no se sube nada: el trabajo se crea con un manifiesto `wordpress.json`, el worker consulta el portal, dibuja las capturas y sigue el mismo camino de imágenes, PDF y entrega. El manifiesto se conserva tras borrar los archivos temporales para mostrar el resumen en el panel.
+
 El PDF nunca agrega una página final vacía: la portada es la hoja 1 y las fotos empiezan en la hoja 2, con `ceil(n / 8)` hojas adicionales.
 
 ## Estructura del proyecto
@@ -128,11 +138,11 @@ app/
   Exception/    Excepciones de aplicación
   Http/         Request, Response, Router, Application y controladores
   Repository/   Persistencia de trabajos en job.json
-  Service/      Subida, imágenes, PDF, entregas, limpieza y rate limit
+  Service/      Subida, WordPress, imágenes, PDF, entregas, limpieza y rate limit
   Support/      Config, entorno, archivos, sesión, CSRF, logger y procesos
 bin/            Worker CLI, generador de hash y chequeos
 public/         Docroot: index.php, assets y .htaccess
-resources/      Vistas PHP
+resources/      Vistas PHP, logo y fuentes tipográficas
 storage/        Estado, sesiones, logs, PDFs y pruebas
 tests/          PHPUnit
 docs/           Guía de despliegue

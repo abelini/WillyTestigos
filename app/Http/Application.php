@@ -81,6 +81,7 @@ final class Application
             $container->cleanup,
             $container->config,
             $container->clock,
+            $container->wordpress,
         );
         $jobs = new JobController(
             $auth,
@@ -94,6 +95,8 @@ final class Application
             $container->clock,
             $container->process,
             $container->logger,
+            $container->wordpress,
+            $container->config,
         );
 
         $router->get('/login', [$authController, 'showLogin']);
@@ -103,6 +106,7 @@ final class Application
         $router->get('/', [$dashboard, 'index']);
         $router->get('/api/state', [$dashboard, 'state']);
         $router->post('/api/jobs', [$dashboard, 'create']);
+        $router->post('/api/jobs/wordpress', [$jobs, 'wordpress']);
 
         $router->post('/api/jobs/{id}/photos', [$jobs, 'upload']);
         $router->post('/api/jobs/{id}/start', [$jobs, 'start']);

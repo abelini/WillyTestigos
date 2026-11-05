@@ -45,6 +45,9 @@ final class Config
         public readonly string $mailFrom,
         public readonly string $mailFromName,
         public readonly string $mailTo,
+        public readonly string $wpBaseUrl,
+        public readonly string $wpSearchTerm,
+        public readonly int $wpDailyLimit,
         public readonly bool $sessionSecure,
         public readonly string $sessionName,
         public readonly bool $trustProxy,
@@ -104,6 +107,7 @@ final class Config
         }
 
         $storagePath = self::absolutePath($root, Env::string('STORAGE_PATH', 'storage'));
+        $wpBaseUrl = self::wordpressBaseUrl(Env::string('WP_BASE_URL', ''));
 
         return new self(
             root: rtrim(str_replace('\\', '/', $root), '/'),
@@ -130,10 +134,27 @@ final class Config
             mailFrom: Env::string('MAIL_FROM', ''),
             mailFromName: Env::string('MAIL_FROM_NAME', 'Testigos'),
             mailTo: Env::string('MAIL_TO', ''),
+            wpBaseUrl: $wpBaseUrl,
+            wpSearchTerm: Env::string('WP_SEARCH', 'UAS'),
+            wpDailyLimit: Env::int('WP_DAILY_POSTS', 3, 1, 10),
             sessionSecure: $scheme === 'https',
             sessionName: 'willy_session',
             trustProxy: Env::bool('TRUST_PROXY', false),
         );
+    }
+
+    public function hasWordPress(): bool
+    {
+        return $this->wpBaseUrl !== '';
+    }
+
+    public function wordpressSite(): string
+    {
+        if (!$this->hasWordPress()) {
+            throw new ConfigurationException('WordPress no está configurado.');
+        }
+
+        return $this->wpBaseUrl;
     }
 
     public function hasTelegram(): bool
@@ -216,6 +237,33 @@ final class Config
     public function staleJobSeconds(): int
     {
         return 86400;
+    }
+
+    private static function wordpressBaseUrl(string $value): string
+    {
+        $normalized = rtrim(trim($value), '/');
+
+        if ($normalized === '') {
+            return '';
+        }
+
+        try {
+            $uri = Uri::parse($normalized);
+        } catch (Throwable $exception) {
+            throw new ConfigurationException('WP_BASE_URL no es una URL válida.');
+        }
+
+        if (!$uri instanceof Uri) {
+            throw new ConfigurationException('WP_BASE_URL no es una URL válida.');
+        }
+
+        $scheme = $uri->getScheme();
+
+        if (!is_string($scheme) || !in_array($scheme, ['http', 'https'], true)) {
+            throw new ConfigurationException('WP_BASE_URL debe usar http o https.');
+        }
+
+        return $normalized;
     }
 
     private static function absolutePath(string $root, string $path): string

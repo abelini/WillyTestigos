@@ -71,6 +71,7 @@ $prefixes = [
     'image' => [
         'app/Service/DeviceFrame.php',
         'app/Service/ImageProcessor.php',
+        'app/Service/WpPostRenderer.php',
         'tests/ImageFixture.php',
     ],
     'exif_' => ['app/Service/ImageProcessor.php'],

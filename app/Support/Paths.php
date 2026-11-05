@@ -66,6 +66,15 @@ final class Paths
         return $this->jobDir($jobId) . '/worker.log';
     }
 
+    /**
+     * Manifiesto de las capturas generadas desde WordPress. Su presencia
+     * marca el origen del trabajo.
+     */
+    public function wordpressManifest(string $jobId): string
+    {
+        return $this->jobDir($jobId) . '/wordpress.json';
+    }
+
     public function logs(): string
     {
         return $this->storage . '/logs';

@@ -26,6 +26,7 @@ final class JobProcessor
         private readonly ImageProcessor $images,
         private readonly PdfBuilder $pdf,
         private readonly DeliveryService $delivery,
+        private readonly WordPressSource $wordpress,
         private readonly Paths $paths,
         private readonly Clock $clock,
         private readonly Logger $logger,
@@ -68,6 +69,17 @@ final class JobProcessor
         );
 
         $this->files->prepare($jobId);
+
+        if ($this->wordpress->isWordPress($jobId)) {
+            $rendered = $this->wordpress->fill($job);
+            $this->jobs->update(
+                $jobId,
+                static fn (Job $current): Job => $current
+                    ->withTotalFiles($rendered, $now)
+                    ->withUploadedFiles($rendered, $now),
+            );
+        }
+
         $originals = $this->files->originals($jobId);
 
         if ($originals === []) {
