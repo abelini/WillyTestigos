@@ -356,6 +356,31 @@
     const wpGenerate = document.getElementById('wp-generate');
     const wpGenerateLabel = document.getElementById('wp-generate-label');
     const wpGenerateIcon = document.getElementById('wp-generate-icon');
+    const wpProgress = document.getElementById('wp-progress');
+    const wpProgressText = document.getElementById('wp-progress-text');
+    const wpProgressLabel = document.getElementById('wp-progress-label');
+    const wpMessage = document.getElementById('wp-message');
+    const wpMessageText = document.getElementById('wp-message-text');
+    const wpMessageIcon = document.getElementById('wp-message-icon');
+
+    const showWpMessage = (text, kind = 'error') => {
+        if (!wpMessage) {
+            return;
+        }
+
+        wpMessage.classList.toggle('success', kind === 'success');
+        wpMessage.hidden = text === '';
+
+        if (wpMessageText) {
+            wpMessageText.textContent = text;
+        }
+
+        if (wpMessageIcon) {
+            wpMessageIcon.className = kind === 'success'
+                ? 'fa-solid fa-circle-check'
+                : 'fa-solid fa-circle-exclamation';
+        }
+    };
 
     if (wordpressForm && wpMonth && wpGenerate) {
         const setWordPressBusy = (busy, text = '') => {
@@ -381,7 +406,7 @@
             if (wpGenerateIcon) {
                 wpGenerateIcon.className = busy
                     ? 'fa-solid fa-gear fa-spin'
-                    : 'fa-brands fa-wordpress';
+                    : 'fa-brands fa-wordpress-simple';
             }
 
             if (generateIcon) {
@@ -396,22 +421,22 @@
                     : 'Generar desde WordPress';
             }
 
-            if (progress) {
-                progress.hidden = !busy;
-                progress.value = 0;
+            if (wpProgress) {
+                wpProgress.hidden = !busy;
+                wpProgress.value = 0;
 
                 if (busy) {
-                    progress.removeAttribute('value');
+                    wpProgress.removeAttribute('value');
                 }
             }
 
-            if (progressText) {
-                progressText.hidden = !busy;
-                progressText.classList.toggle('busy', busy);
+            if (wpProgressText) {
+                wpProgressText.hidden = !busy;
+                wpProgressText.classList.toggle('busy', busy);
             }
 
-            if (progressLabel) {
-                progressLabel.textContent = text;
+            if (wpProgressLabel) {
+                wpProgressLabel.textContent = text;
             }
         };
 
@@ -422,7 +447,7 @@
                 return;
             }
 
-            showMessage('');
+            showWpMessage('');
             setWordPressBusy(true, 'Consultando el portal y creando el trabajo…');
 
             try {
@@ -433,7 +458,7 @@
 
                 try {
                     window.sessionStorage.setItem(
-                        'willy.flash',
+                        'willy.flash.wp',
                         'Trabajo de WordPress creado. Las capturas se están generando.',
                     );
                 } catch (error) {
@@ -442,7 +467,7 @@
 
                 window.location.reload();
             } catch (error) {
-                showMessage(error.message || 'No se pudo generar desde WordPress.');
+                showWpMessage(error.message || 'No se pudo generar desde WordPress.');
                 setWordPressBusy(false);
             }
         });
@@ -484,10 +509,16 @@
 
     try {
         const flash = window.sessionStorage.getItem('willy.flash');
+        const wpFlash = window.sessionStorage.getItem('willy.flash.wp');
 
         if (flash && form) {
             window.sessionStorage.removeItem('willy.flash');
             showMessage(flash, 'success');
+        }
+
+        if (wpFlash && wpMessage) {
+            window.sessionStorage.removeItem('willy.flash.wp');
+            showWpMessage(wpFlash, 'success');
         }
     } catch (error) {
         // sessionStorage puede estar bloqueado; no es crítico.

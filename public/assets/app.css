@@ -224,12 +224,12 @@ button:disabled i.fa-spin {
     animation-duration: 0.7s;
 }
 
-#progress-text.busy {
+.progress-row.busy {
     font-weight: 600;
     color: var(--ink);
 }
 
-#progress-text.busy i {
+.progress-row.busy i {
     font-size: 1.5rem;
     color: var(--accent);
     animation-duration: 0.7s;
@@ -348,14 +348,14 @@ progress::-moz-progress-bar {
     background: var(--accent);
 }
 
-#progress-text {
+.progress-row {
     display: flex;
     align-items: center;
     gap: 0.45rem;
     margin-top: 0.5rem;
 }
 
-#progress-text[hidden] {
+.progress-row[hidden] {
     display: none;
 }
 

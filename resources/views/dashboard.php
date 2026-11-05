@@ -69,7 +69,7 @@ $jobs = $data['jobs'];
         </form>
 
         <progress id="progress" max="100" value="0" hidden></progress>
-        <p id="progress-text" class="muted" hidden>
+        <p id="progress-text" class="muted progress-row" hidden>
             <i id="progress-icon" class="fa-solid fa-gear fa-spin" aria-hidden="true"></i>
             <span id="progress-label"></span>
         </p>
@@ -110,6 +110,16 @@ $jobs = $data['jobs'];
                     <span id="wp-generate-label">Generar desde WordPress</span>
                 </button>
             </form>
+
+            <progress id="wp-progress" max="100" value="0" hidden></progress>
+            <p id="wp-progress-text" class="muted progress-row" hidden>
+                <i id="wp-progress-icon" class="fa-solid fa-gear fa-spin" aria-hidden="true"></i>
+                <span id="wp-progress-label"></span>
+            </p>
+            <p id="wp-message" class="alert" role="alert" hidden>
+                <i id="wp-message-icon" class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                <span id="wp-message-text"></span>
+            </p>
         </section>
     <?php endif; ?>
 

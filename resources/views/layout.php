@@ -15,7 +15,7 @@ use Willy\Support\View;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= View::escape((string) $data['title']) ?> · Testigos</title>
 
-    <link rel="stylesheet" href="/assets/app.css?v=7">
+    <link rel="stylesheet" href="/assets/app.css?v=8">
 
     <link rel="icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-160x160.png" type="image/png" sizes="160x160">
     <link rel="icon" href="https://proyectoz.com.mx/wp-content/uploads/2026/08/cropped-icon_proyecto_z-320x320.png" type="image/png" sizes="320x320">
@@ -27,7 +27,7 @@ use Willy\Support\View;
 
 <body data-config="<?= View::escape((string) $data['config']) ?>">
     <?= $data['content'] ?>
-    <script src="/assets/app.js?v=5" defer></script>
+    <script src="/assets/app.js?v=6" defer></script>
 </body>
 
 </html>
