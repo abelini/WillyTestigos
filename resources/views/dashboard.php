@@ -32,6 +32,9 @@ $jobs = $data['jobs'];
             <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
             Generación manual de PDF de testigos
         </h2>
+        <p class="muted">
+            Este es el método tradicional, el PDF se genera a partir de las capturas de pantalla que subas.
+        </p>
         <form id="upload-form" novalidate>
             <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
 
@@ -52,7 +55,7 @@ $jobs = $data['jobs'];
             <label class="drop" id="drop-zone">
                 <input id="photos" type="file" accept="image/jpeg,image/png" multiple>
                 <i id="drop-icon" class="fa-solid fa-cloud-arrow-up drop-icon" aria-hidden="true"></i>
-                <strong id="drop-title">Selecciona de la Galería o arrastra las capturas</strong>
+                <span id="drop-title">Selecciona de la Galería o arrastra las capturas</span>
             </label>
             <p id="selection" class="selection" aria-live="polite" hidden>
                 <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
@@ -79,11 +82,11 @@ $jobs = $data['jobs'];
     <?php if ((bool) $data['wordpress']): ?>
         <section class="card">
             <h2>
-                <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                <i class="fa-brands fa-wordpress-simple" aria-hidden="true"></i>
                 Generación automática desde WordPress
             </h2>
             <p class="muted">
-                Esta opción toma hasta <?= $data['wp_daily'] ?> notas diarias del mes elegido.
+                Este método toma hasta <?= $data['wp_daily'] ?> notas diarias del mes elegido para generar el PDF.
             </p>
             <form id="wordpress-form" novalidate>
                 <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
@@ -103,7 +106,7 @@ $jobs = $data['jobs'];
                 </label>
 
                 <button id="wp-generate" type="submit">
-                    <i id="wp-generate-icon" class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                    <i id="wp-generate-icon" class="fa-brands fa-wordpress-simple" aria-hidden="true"></i>
                     <span id="wp-generate-label">Generar desde WordPress</span>
                 </button>
             </form>
@@ -151,7 +154,7 @@ $jobs = $data['jobs'];
                                 </span>
                                 <?php if ((string) $job['source'] === 'wordpress'): ?>
                                     <span class="badge badge--wordpress">
-                                        <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                                        <i class="fa-brands fa-wordpress-simple" aria-hidden="true"></i>
                                         WordPress
                                     </span>
                                 <?php endif; ?>
@@ -160,7 +163,7 @@ $jobs = $data['jobs'];
 
                         <?php if ((string) $job['source'] === 'wordpress' && (int) $job['wp_selected'] > 0): ?>
                             <p class="muted job-info">
-                                <i class="fa-brands fa-wordpress" aria-hidden="true"></i>
+                                <i class="fa-brands fa-wordpress-simple" aria-hidden="true"></i>
                                 <?= (int) $job['wp_rendered'] ?> de <?= (int) $job['wp_selected'] ?> notas de WordPress
                             </p>
                         <?php endif; ?>
