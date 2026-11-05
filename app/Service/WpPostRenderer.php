@@ -19,6 +19,7 @@ use function imagecreatefrompng;
 use function imagecreatefromstring;
 use function imagecreatetruecolor;
 use function imagefill;
+use function imagefilledellipse;
 use function imagefilledrectangle;
 use function imagejpeg;
 use function imagesx;
@@ -50,12 +51,12 @@ final class WpPostRenderer
     private const HEIGHT = 844;
 
     private const RED_HEIGHT = 34;
-    private const LOGO_TOP = 74;
+    private const LOGO_TOP = 58;
     private const LOGO_HEIGHT = 46;
 
-    private const DATE_BASELINE = 204;
+    private const DATE_BASELINE = 138;
     private const DATE_SIZE = 12;
-    private const TITLE_BASELINE = 232;
+    private const TITLE_BASELINE = 174;
     private const TITLE_SIZE = 22;
     private const TITLE_LINE = 30;
     private const TITLE_MAX_LINES = 4;
@@ -67,6 +68,13 @@ final class WpPostRenderer
     private const BODY_SIZE = 15;
     private const BODY_LINE = 23;
     private const PADDING = 18;
+
+    private const HAMBURGER_LEFT = 322;
+    private const HAMBURGER_WIDTH = 32;
+    private const HAMBURGER_THICKNESS = 2;
+
+    private const ISLAND_WIDTH = 96;
+    private const ISLAND_HEIGHT = 24;
 
     private const FONT_TITLE = 'oswald-bold.ttf';
     private const FONT_BODY = 'roboto-regular.ttf';
@@ -106,6 +114,7 @@ final class WpPostRenderer
 
         $this->drawLogo($canvas);
         $this->drawHamburger($canvas);
+        $this->drawIsland($canvas);
         $this->drawText($canvas, $post->dateLabel(), self::FONT_BOLD, self::DATE_SIZE, self::DATE_BASELINE, self::GRAY);
 
         foreach ($titleLines as $index => $line) {
@@ -193,17 +202,42 @@ final class WpPostRenderer
     private function drawHamburger(GdImage $canvas): void
     {
         $color = $this->color($canvas, self::WHITE);
+        $right = self::HAMBURGER_LEFT + self::HAMBURGER_WIDTH;
 
-        foreach ([12, 18, 24] as $top) {
+        foreach ([10, 16, 22] as $top) {
             imagefilledrectangle(
                 $canvas,
-                340 * self::SCALE,
+                self::HAMBURGER_LEFT * self::SCALE,
                 $top * self::SCALE,
-                372 * self::SCALE,
-                ($top + 2) * self::SCALE,
+                $right * self::SCALE,
+                ($top + self::HAMBURGER_THICKNESS) * self::SCALE,
                 $color,
             );
         }
+    }
+
+    /**
+     * Cápsula negra centrada en la barra roja que simula la Dynamic Island.
+     */
+    private function drawIsland(GdImage $canvas): void
+    {
+        $color = $this->color($canvas, self::BLACK);
+        $width = self::ISLAND_WIDTH * self::SCALE;
+        $height = self::ISLAND_HEIGHT * self::SCALE;
+        $left = intdiv((self::WIDTH * self::SCALE) - $width, 2);
+        $top = intdiv((self::RED_HEIGHT * self::SCALE) - $height, 2);
+        $radius = intdiv($height, 2);
+
+        imagefilledrectangle(
+            $canvas,
+            $left + $radius,
+            $top,
+            $left + $width - $radius,
+            $top + $height,
+            $color,
+        );
+        imagefilledellipse($canvas, $left + $radius, $top + $radius, $height, $height, $color);
+        imagefilledellipse($canvas, $left + $width - $radius, $top + $radius, $height, $height, $color);
     }
 
     private function drawLogo(GdImage $canvas): void
