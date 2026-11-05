@@ -6,6 +6,16 @@ La portada dice `TESTIGOS DEL MES DE {MES}` con el subtítulo `Portal: Proyecto 
 
 También puede generar las capturas automáticamente desde WordPress: consulta la API REST del portal, toma hasta tres notas diarias que mencionan `UAS` y dibuja cada una como una vista móvil de iPhone antes de armar el PDF.
 
+## Stack
+
+- PHP 8.5 sin framework, con `declare(strict_types=1)`.
+- GD para el render de las capturas y el marco del dispositivo.
+- cURL para las llamadas a WordPress y Telegram Bot API.
+- FPDF para el PDF y PHPMailer para el correo.
+- `vlucas/phpdotenv` para la configuración.
+- JavaScript y CSS sin dependencias ni build.
+- Sin base de datos, sin Node, sin ImageMagick.
+
 ## Características
 
 - Un solo trabajo activo a la vez, con historial de trabajos anteriores.
@@ -26,13 +36,11 @@ También puede generar las capturas automáticamente desde WordPress: consulta l
 - Servidor web con reescritura de URLs y docroot en `public/` (OpenLiteSpeed, Apache o Nginx).
 - Opcional: bot de Telegram y una cuenta SMTP.
 
-No se necesita Node, SQLite ni ImageMagick.
+En el servidor de producción el PHP 8.5 está en `/usr/local/lsws/lsphp85/bin/php`; Composer debe ejecutarse con ese binario para respetar `php: ^8.5`.
 
 ## Instalación
 
 ```bash
-git clone <url-del-repositorio> willy
-cd willy
 composer install --no-dev --optimize-autoloader
 cp .env.example .env
 ```
@@ -89,32 +97,7 @@ En Windows, asegúrate de que el usuario de OpenLiteSpeed/XAMPP pueda escribir e
 
 Si `TELEGRAM_*` o `MAIL_*` están incompletos, ese canal se marca como omitido y el PDF queda disponible para descarga.
 
-Con `WP_BASE_URL` configurado, el panel muestra la tarjeta «Capturas desde WordPress». El worker consulta `search=UAS` para el mes elegido, ordena las notas por fecha y toma hasta `WP_DAILY_POSTS` por día; si un día no tiene notas se salta. Dentro de cada día, las notas que llevan el término en el título tienen prioridad. Una nota que falle se registra y no interrumpe el resto del trabajo.
-
-## Desarrollo local
-
-```bash
-composer serve
-```
-
-Abre `http://localhost:8000` (no `127.0.0.1`). El comando usa `bin/dev-router.php` para que las rutas de la API funcionen con el servidor embebido.
-
-Antes de arrancar, configura en `.env`:
-
-- `APP_URL=http://localhost:8000` (el host debe coincidir para que la cookie de sesión funcione).
-- `APP_PASSWORD_HASH` con el resultado de `composer hash-password`.
-- `WORKER_MODE=inline` en Windows, para no depender de `exec`.
-- `PHP_CLI_BINARY=` vacío, para que use el binario PHP actual.
-
-El kit de Font Awesome solo autoriza determinados dominios; por eso en local hay que usar `localhost` y no `127.0.0.1`.
-
-Para ejecutar todas las verificaciones:
-
-```bash
-composer check
-```
-
-El comando ejecuta PHP-CS-Fixer, PHPStan, PHPUnit y los chequeos propios de `null`, FQDN y funciones fuera de sus wrappers.
+Con `WP_BASE_URL` configurado, el panel muestra la tarjeta «Generación automática desde WordPress». El worker consulta `search=UAS` para el mes elegido, ordena las notas por fecha y toma hasta `WP_DAILY_POSTS` por día; si un día no tiene notas se salta. Dentro de cada día, las notas que llevan el término en el título tienen prioridad. Una nota que falle se registra y no interrumpe el resto del trabajo.
 
 ## Flujo de trabajo
 
@@ -129,6 +112,19 @@ El comando ejecuta PHP-CS-Fixer, PHPStan, PHPUnit y los chequeos propios de `nul
 Para las capturas de WordPress no se sube nada: el trabajo se crea con un manifiesto `wordpress.json`, el worker consulta el portal, dibuja las capturas y sigue el mismo camino de imágenes, PDF y entrega. El manifiesto se conserva tras borrar los archivos temporales para mostrar el resumen en el panel.
 
 El PDF nunca agrega una página final vacía: la portada es la hoja 1 y las fotos empiezan en la hoja 2, con `ceil(n / 8)` hojas adicionales.
+
+## Render de las capturas de WordPress
+
+`WpPostRenderer` dibuja un lienzo lógico de 390×844 puntos con escala 3, es decir, 1170×2532 píxeles. `ImageProcessor` lo reduce a un máximo de 1100 px de lado y `DeviceFrame` aplica el marco de iPhone solo a las imágenes verticales.
+
+El diseño replica la vista móvil del portal:
+
+- Barra roja de 42 pt con hamburguesa y Dynamic Island simulada.
+- Banda negra con el logo, separada de la fecha por una línea gris tenue.
+- Fecha, título en Oswald a un máximo de 4 líneas con truncado, y categoría en rojo y mayúsculas.
+- Imagen destacada recortada al centro y cuerpo en Roboto gris `rgb(85, 85, 85)` hasta el borde inferior.
+
+Las fuentes (`Oswald Bold`, `Roboto Regular` y `Roboto Bold`) viven en `resources/fonts/` con sus licencias OFL. El logo de la banda es `public/assets/logo-proyecto-z.png`.
 
 ## Estructura del proyecto
 
@@ -148,6 +144,26 @@ tests/          PHPUnit
 docs/           Guía de despliegue
 ```
 
+Cada trabajo vive en `storage/jobs/<id>/`: `job.json` con el estado, `wordpress.json` cuando el origen es WordPress, y las carpetas temporales de originales, procesadas y salida.
+
+## Convenciones del código
+
+El proyecto se verifica con reglas estrictas; cualquier cambio debe respetarlas:
+
+- PHP 8.5 con `declare(strict_types=1)` en todos los archivos.
+- Cero `null`: prohibidos `?Tipo`, `null`, `??`, `isset`, `is_null`, `?->` y `=== null`.
+- Sin nombres totalmente calificados (FQDN): las funciones nativas se importan con `use function`.
+- OO primero. Las funciones nativas sin equivalente OO se aíslan en wrappers autorizados en `bin/check-oop.php` (por ejemplo GD en `DeviceFrame`, `ImageProcessor` y `WpPostRenderer`).
+- Las funciones nativas con equivalente OO no se permiten.
+
+Para ejecutar todas las verificaciones:
+
+```bash
+composer check
+```
+
+El comando ejecuta PHP-CS-Fixer, PHPStan (nivel máximo), PHPUnit y los chequeos propios de `null`, FQDN y funciones fuera de sus wrappers.
+
 ## Seguridad
 
 - No se guardan contraseñas en texto plano.
@@ -162,14 +178,3 @@ docs/           Guía de despliegue
 ## Despliegue
 
 Consulta [docs/OPENLITESPEED.md](docs/OPENLITESPEED.md) para la configuración de OpenLiteSpeed, permisos, worker, SMTP, Telegram y solución de problemas.
-
-## Git
-
-El repositorio local usa la rama `main`. Para publicarlo:
-
-```bash
-git remote add origin git@github.com:usuario/willy.git
-git push -u origin main
-```
-
-El archivo `.env`, `vendor/`, `storage/` y los PDFs generados están excluidos por `.gitignore`.
