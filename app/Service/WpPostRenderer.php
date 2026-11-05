@@ -92,7 +92,7 @@ final class WpPostRenderer
     /** @var list<int> */
     private const GRAY = [152, 152, 152];
     /** @var list<int> */
-    private const BODY = [32, 32, 32];
+    private const BODY = [85, 85, 85];
     /** @var list<int> */
     private const PLACEHOLDER = [228, 228, 228];
     /** @var list<int> */
