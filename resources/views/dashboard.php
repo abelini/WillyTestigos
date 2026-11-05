@@ -39,10 +39,6 @@ $jobs = $data['jobs'];
             <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
 
             <label class="field">
-                <span>
-                    <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
-                    Mes
-                </span>
                 <select id="month" name="month">
                     <?php foreach ($months as $month): ?>
                         <option value="<?= $month->number() ?>" <?= $month === $detected ? 'selected' : '' ?>>
@@ -92,10 +88,6 @@ $jobs = $data['jobs'];
                 <input type="hidden" name="_csrf" value="<?= View::escape((string) $data['csrf']) ?>">
 
                 <label class="field">
-                    <span>
-                        <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
-                        Mes
-                    </span>
                     <select id="wp-month" name="month">
                         <?php foreach ($months as $month): ?>
                             <option value="<?= $month->number() ?>" <?= $month === $detected ? 'selected' : '' ?>>
