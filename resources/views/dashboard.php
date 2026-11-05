@@ -30,7 +30,7 @@ $jobs = $data['jobs'];
     <section class="card">
         <h2>
             <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
-            Generación manual de PDF de testigos
+            Generación manual
         </h2>
         <p class="muted">
             Este es el método tradicional, el PDF se genera a partir de las capturas de pantalla que subas.
@@ -64,7 +64,7 @@ $jobs = $data['jobs'];
 
             <button id="generate" type="submit">
                 <i id="generate-icon" class="fa-solid fa-file-pdf" aria-hidden="true"></i>
-                <span id="generate-label">Generar PDF</span>
+                <span id="generate-label">Generar manualmente</span>
             </button>
         </form>
 
